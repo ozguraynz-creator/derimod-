@@ -20,6 +20,7 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
+        /* Sayı Input Tasarımı: İçerik Sağa Dayalı, Formatlı Görünüm */
         .formatli-input {
             width: 100%;
             background: transparent;
@@ -58,6 +59,7 @@
 
         .money-font { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
 
+        /* --- YATAY MOD (LANDSCAPE) OTOMATİK SIĞDIRMA --- */
         @media (orientation: landscape) {
             #app { zoom: 0.8; }
             header { padding: 1rem !important; }
@@ -116,7 +118,7 @@
                             </div>
                         </div>
 
-                        <!-- Mağaza Hedefi -->
+                        <!-- Mağaza Hedefi (Formatlı Component Kullanımı) -->
                         <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
                             <span class="text-[10px] uppercase font-bold text-emerald-600 block mb-1">MAĞAZA HEDEFİ</span>
                             <div class="flex items-center bg-transparent">
@@ -234,7 +236,6 @@
                                     <td>{{ toplamlar.fatura }}</td>
                                     <td>{{ formatNum(toplamlar.upt) }}</td>
                                     <td class="text-rose-400 border-l border-slate-700 money-font">{{ formatMoney(toplamlar.iade) }}</td>
-                                    <!-- Alt satır için isDark parametresini true gönderiyoruz ki renkler gece modunda parlasın -->
                                     <td class="px-4" v-html="getTahminHtml(toplamlar.tahmin, true)"></td>
                                     <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
                                     <td></td>
@@ -294,45 +295,48 @@
     <script>
         const { createApp } = Vue;
 
+        // VUE BİLEŞENİ: Mobil cihazlarda hatasız giriş yapmayı sağlayan akıllı input.
         const FormatliInput = {
             props: ['modelValue', 'siniflar'],
             emits: ['update:modelValue'],
             data() {
                 return {
-                    gosterilenDeger: this.formatla(this.modelValue)
+                    isFocused: false,
+                    // Yazı yazarken virgüllü halini tutan geçici değişken
+                    tempValue: this.modelValue
                 }
             },
             watch: {
-                modelValue(yeniDeger) {
-                    this.gosterilenDeger = this.formatla(yeniDeger);
+                modelValue(newVal) {
+                    if(!this.isFocused) {
+                        this.tempValue = newVal;
+                    }
+                }
+            },
+            computed: {
+                displayValue() {
+                    // Kullanıcı hücrenin içindeyken (odaklanmışken) saf rakamları gösterir.
+                    if (this.isFocused) {
+                        return this.tempValue === 0 ? '' : this.tempValue;
+                    } 
+                    // Kullanıcı hücreden çıktığında sayıyı şık bir formata dönüştürür.
+                    else {
+                        if (!this.tempValue && this.tempValue !== 0) return '';
+                        return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(this.tempValue);
+                    }
                 }
             },
             methods: {
-                formatla(deger) {
-                    if (!deger && deger !== 0) return '';
-                    let numStr = String(deger).replace(',', '.');
-                    let p = parseFloat(numStr);
-                    if (isNaN(p)) return '';
-                    return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(p);
-                },
-                guncelle(event) {
-                    let rawValue = event.target.value;
-                    let cleanValue = rawValue.replace(/\./g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
-                    let num = parseFloat(cleanValue);
-                    
-                    if (isNaN(num)) {
-                        this.$emit('update:modelValue', 0);
-                        this.gosterilenDeger = '';
-                    } else {
-                        this.$emit('update:modelValue', num);
-                        this.gosterilenDeger = rawValue; 
-                    }
-                },
-                odakKaybi() {
-                    this.gosterilenDeger = this.formatla(this.modelValue);
+                onInput(e) {
+                    // Kullanıcı virgül kullanırsa kod mantığı için noktaya çevir
+                    let val = e.target.value.replace(/,/g, '.');
+                    let num = parseFloat(val);
+                    this.tempValue = val; 
+                    this.$emit('update:modelValue', isNaN(num) ? 0 : num);
                 }
             },
-            template: `<input type="text" :class="['formatli-input', siniflar]" :value="gosterilenDeger" @input="guncelle" @blur="odakKaybi" placeholder="0,00" />`
+            // inputmode="decimal" telefonda doğru sayısal klavyenin çıkmasını sağlar.
+            template: `<input type="text" inputmode="decimal" :class="['formatli-input', siniflar]" :value="displayValue" @input="onInput" @focus="isFocused = true" @blur="isFocused = false" placeholder="0,00" />`
         };
 
         const app = createApp({
@@ -442,7 +446,6 @@
                     return `<span class="${color} font-black text-sm tracking-tighter">${this.formatPercent(hgo)}</span>`;
                 },
 
-                // GÜNCELLENEN TAHMİN OKLARI (ÖZEL RENK VE İKON KURALLARI)
                 getTahminHtml(tahmin, isDark = false) {
                     let colorClass = '';
                     let iconClass = '';
