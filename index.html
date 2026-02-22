@@ -2,7 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- ZOOM KİLİDİ KALDIRILDI: Artık iki parmakla ekranı dilediğiniz gibi ufaltıp büyütebilirsiniz -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DERİMOD">
@@ -10,6 +11,7 @@
     
     <title>DERİMOD Performans</title>
     
+    <!-- Dış Kaynaklar -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -20,11 +22,14 @@
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; background: transparent; width: 100%; text-align: center; outline: none; font-variant-numeric: tabular-nums; }
         input[type=number]:focus { background-color: rgba(255,255,255,0.9); color: black; border-radius: 4px; box-shadow: 0 0 0 2px #94a3b8; }
+        
         .table-container { overflow-x: auto; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8fafc; }
         .table-container::-webkit-scrollbar { height: 8px; }
         .table-container::-webkit-scrollbar-track { background: #f8fafc; border-radius: 4px; }
         .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        th, td { padding: 0.5rem 0.25rem; white-space: nowrap; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        th, td { padding: 0.4rem 0.2rem; white-space: nowrap; }
         
         #native-loader { position: fixed; inset: 0; background: #f8fafc; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; }
         .spinner { width: 45px; height: 45px; border: 4px solid #cbd5e1; border-top-color: #1e293b; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
@@ -96,25 +101,26 @@
 
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative mt-6">
                 <div class="table-container">
-                    <table class="w-full text-xs text-center whitespace-nowrap min-w-[1400px]">
+                    <!-- Tablonun asgari genişliği biraz daraltıldı, böylece zoom-out daha dengeli durur -->
+                    <table class="w-full text-xs text-center whitespace-nowrap min-w-[1200px]">
                         <thead>
                             <tr class="bg-slate-100 text-slate-500 uppercase tracking-wider text-[10px] border-b border-slate-200">
                                 <th class="text-left pl-5 py-4 sticky left-0 z-20 bg-slate-100 border-r border-slate-200 font-extrabold shadow-[2px_0_5px_rgba(0,0,0,0.05)]">PERSONEL İSMİ</th>
-                                <th class="px-3 font-semibold">Ç.GÜN</th>
-                                <th class="px-4 font-bold text-emerald-600">GERÇEKLEŞEN CİRO</th>
-                                <th class="px-3 font-semibold">HGO</th>
-                                <th class="px-3 font-semibold">OSF</th>
-                                <th class="px-3 font-semibold">OFT</th>
+                                <th class="px-2 font-semibold">Ç.GÜN</th>
+                                <th class="px-3 font-bold text-emerald-600">GERÇEKLEŞEN CİRO</th>
+                                <th class="px-2 font-semibold">HGO</th>
+                                <th class="px-2 font-semibold">OSF</th>
+                                <th class="px-2 font-semibold">OFT</th>
                                 <th class="px-2 font-semibold">SATIŞ</th>
                                 <th class="px-2 font-semibold">FATURA</th>
-                                <th class="px-3 font-semibold">UPT</th>
-                                <th class="px-4 font-semibold text-rose-500 border-l border-slate-200">İADE YÜKÜ</th>
+                                <th class="px-2 font-semibold">UPT</th>
+                                <th class="px-3 font-semibold text-rose-500 border-l border-slate-200">İADE YÜKÜ</th>
                                 <th class="px-3 font-semibold text-indigo-500">TAHMİN</th>
-                                <th class="px-4 font-bold text-slate-700 border-l border-slate-200">NET HEDEF</th>
-                                <th class="px-3 font-semibold text-slate-400">%110</th>
-                                <th class="px-3 font-semibold text-slate-400">%120</th>
-                                <th class="px-3 font-semibold text-slate-400">%130</th>
-                                <th class="px-3">SİL</th>
+                                <th class="px-3 font-bold text-slate-700 border-l border-slate-200">NET HEDEF</th>
+                                <th class="px-2 font-semibold text-slate-400">%110</th>
+                                <th class="px-2 font-semibold text-slate-400">%120</th>
+                                <th class="px-2 font-semibold text-slate-400">%130</th>
+                                <th class="px-2">SİL</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-700">
@@ -125,11 +131,11 @@
                                         <div class="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0">
                                             {{ p.isim.charAt(0) }}
                                         </div>
-                                        <input type="text" v-model="p.isim" class="font-bold text-slate-700 w-36 bg-transparent outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 rounded px-1 py-1">
+                                        <input type="text" v-model="p.isim" class="font-bold text-slate-700 w-32 bg-transparent outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 rounded px-1 py-1">
                                     </div>
                                 </td>
                                 
-                                <td class="px-2"><input type="number" v-model.number="p.cGun" class="w-14 text-center font-bold text-slate-600 bg-slate-100 rounded py-1.5 outline-none focus:ring-2 focus:ring-slate-400"></td>
+                                <td class="px-2"><input type="number" v-model.number="p.cGun" class="w-12 text-center font-bold text-slate-600 bg-slate-100 rounded py-1.5 outline-none focus:ring-2 focus:ring-slate-400"></td>
                                 <td class="px-3">
                                     <div class="relative flex items-center w-28 mx-auto bg-emerald-50 rounded focus-within:ring-2 focus-within:ring-emerald-400 border border-emerald-100/50">
                                         <input type="number" v-model.number="p.gerceklesen" class="w-full text-right font-bold text-emerald-700 bg-transparent outline-none py-1.5 pr-5">
@@ -141,8 +147,8 @@
                                 <td class="px-2 text-slate-500 font-medium">{{ formatMoney(calcOSF(p.gerceklesen, p.satis)) }}</td>
                                 <td class="px-2 text-slate-500 font-medium">{{ formatMoney(calcOFT(p.gerceklesen, p.fatura)) }}</td>
                                 
-                                <td class="px-1"><input type="number" v-model.number="p.satis" class="w-12 text-center font-bold text-slate-600 bg-slate-100 rounded py-1.5 outline-none focus:ring-1 focus:ring-slate-400"></td>
-                                <td class="px-1"><input type="number" v-model.number="p.fatura" class="w-12 text-center font-bold text-slate-600 bg-slate-100 rounded py-1.5 outline-none focus:ring-1 focus:ring-slate-400"></td>
+                                <td class="px-1"><input type="number" v-model.number="p.satis" class="w-10 text-center font-bold text-slate-600 bg-slate-100 rounded py-1.5 outline-none focus:ring-1 focus:ring-slate-400"></td>
+                                <td class="px-1"><input type="number" v-model.number="p.fatura" class="w-10 text-center font-bold text-slate-600 bg-slate-100 rounded py-1.5 outline-none focus:ring-1 focus:ring-slate-400"></td>
                                 <td class="px-2 font-bold text-slate-600 text-sm">{{ formatNum(calcUPT(p.satis, p.fatura)) }}</td>
                                 
                                 <td class="px-2 font-bold text-rose-500 bg-rose-50/40 border-l border-slate-100">{{ formatMoney(kisiBasiIadePayi) }}</td>
@@ -162,7 +168,7 @@
 
                             <tr class="bg-slate-50/80 border-t-[3px] border-slate-200">
                                 <td class="text-left pl-5 py-3 sticky left-0 z-10 bg-slate-50 font-extrabold text-slate-500 border-r border-slate-200 tracking-wide">KASA İŞLEMLERİ</td>
-                                <td class="px-2"><input type="number" v-model.number="kasa.cGun" class="w-14 text-center font-bold text-slate-500 bg-white border border-slate-200 rounded py-1.5 outline-none focus:ring-2 focus:ring-slate-300"></td>
+                                <td class="px-2"><input type="number" v-model.number="kasa.cGun" class="w-12 text-center font-bold text-slate-500 bg-white border border-slate-200 rounded py-1.5 outline-none focus:ring-2 focus:ring-slate-300"></td>
                                 <td class="px-3">
                                     <div class="relative flex items-center w-28 mx-auto bg-white border border-slate-200 rounded focus-within:ring-2 focus-within:ring-emerald-300">
                                         <input type="number" v-model.number="kasa.gerceklesen" class="w-full text-right font-bold text-emerald-600 bg-transparent py-1.5 pr-5 outline-none">
@@ -182,7 +188,7 @@
 
                             <tr class="bg-rose-50/30 border-t border-slate-200">
                                 <td class="text-left pl-5 py-3 sticky left-0 z-10 bg-rose-50 font-extrabold text-rose-600 border-r border-rose-200 tracking-wide">ORTAK MAĞAZA İADE</td>
-                                <td class="px-2"><input type="number" v-model.number="magazaIade.cGun" class="w-14 text-center font-bold text-rose-500 bg-white border border-rose-200 rounded py-1.5 outline-none focus:ring-2 focus:ring-rose-300"></td>
+                                <td class="px-2"><input type="number" v-model.number="magazaIade.cGun" class="w-12 text-center font-bold text-rose-500 bg-white border border-rose-200 rounded py-1.5 outline-none focus:ring-2 focus:ring-rose-300"></td>
                                 <td class="px-3">
                                     <div class="relative flex items-center w-28 mx-auto bg-white border border-rose-200 rounded focus-within:ring-2 focus-within:ring-rose-400">
                                         <input type="number" v-model.number="magazaIade.gerceklesen" class="w-full text-right font-bold text-rose-600 bg-transparent py-1.5 pr-5 outline-none">
@@ -256,7 +262,7 @@
 
         window.onload = function() {
             if (typeof Vue === 'undefined') {
-                document.getElementById('loader-text').innerHTML = "İnternet bağlantınız koptu. Lütfen sayfayı yenileyin.";
+                document.getElementById('loader-text').innerHTML = "Bağlantı hatası. Lütfen sayfayı yenileyin.";
                 return;
             }
 
