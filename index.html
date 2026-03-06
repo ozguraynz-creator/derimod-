@@ -2,12 +2,76 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DERİMOD Performans Paneli</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aylık Hedef Performansı</title>
     
+    <!-- PWA (Mobil Uygulama) Ayarları -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Derimod">
+    <meta name="theme-color" content="#1e293b">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <!-- Dinamik İkon ve PWA Kurulumu (Kırmızı Zemin, 50. Yıl Beyaz Yazı) -->
+    <script>
+        function setupAppIconAndManifest() {
+            // 512x512 boyutunda sanal bir resim oluşturuyoruz
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Kırmızı Arkaplan
+            ctx.fillStyle = '#e30613'; // Derimod kırmızısına yakın canlı kırmızı
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Beyaz "50. Yıl" Yazısı
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 120px Arial, sans-serif';
+            ctx.fillText('50. Yıl', 256, 256);
+
+            // Resmi tarayıcının anlayacağı formata (Base64 PNG) çeviriyoruz
+            const iconDataURL = canvas.toDataURL('image/png');
+
+            // Apple iOS İkonu
+            let appleLink = document.createElement('link');
+            appleLink.rel = 'apple-touch-icon';
+            appleLink.href = iconDataURL;
+            document.head.appendChild(appleLink);
+
+            // Standart Tarayıcı İkonu (Favicon)
+            let faviconLink = document.createElement('link');
+            faviconLink.rel = 'icon';
+            faviconLink.href = iconDataURL;
+            document.head.appendChild(faviconLink);
+
+            // Android cihazlar için Manifest (Ana ekrana ekle özelliği için)
+            const manifest = {
+                name: "Aylık Hedef Performansı",
+                short_name: "Derimod",
+                start_url: ".",
+                display: "standalone",
+                background_color: "#f1f5f9",
+                theme_color: "#1e293b",
+                icons: [{
+                    src: iconDataURL,
+                    sizes: "512x512",
+                    type: "image/png"
+                }]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            let manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+        }
+        setupAppIconAndManifest();
+    </script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
@@ -20,7 +84,7 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        /* Sayı Input Tasarımı: İçerik Sağa Dayalı, Formatlı Görünüm */
+        /* Sayı Input Tasarımı */
         .formatli-input {
             width: 100%;
             background: transparent;
@@ -59,18 +123,18 @@
 
         .money-font { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
 
-        /* --- YATAY MOD (LANDSCAPE) OTOMATİK SIĞDIRMA --- */
+        /* YATAY MOD (LANDSCAPE) */
         @media (orientation: landscape) {
             #app { zoom: 0.8; }
             header { padding: 1rem !important; }
             .sticky-left { position: sticky; left: 0; z-index: 20; background: white; }
         }
 
-        #native-loader { position: fixed; inset: 0; background: #1e293b; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #native-loader { position: fixed; inset: 0; background: #1e293b; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .spinner { width: 50px; height: 50px; border: 5px solid #334155; border-top-color: #fbbf24; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        [v-cloak] { display: none; }
+        [v-cloak] { display: none !important; }
     </style>
 </head>
 <body class="antialiased text-slate-800">
@@ -78,7 +142,7 @@
     <div id="native-loader">
         <div class="spinner"></div>
         <h2 class="mt-6 font-black text-white text-2xl tracking-tighter">DERİMOD</h2>
-        <p class="text-slate-400 text-xs mt-2 uppercase tracking-widest font-bold">Veriler Yükleniyor</p>
+        <p class="text-slate-400 text-xs mt-2 uppercase tracking-widest font-bold">Aylık Hedef Performansı</p>
     </div>
 
     <div id="app" v-cloak class="min-h-screen p-4">
@@ -86,10 +150,11 @@
             
             <!-- ÜST HEADER PANELİ -->
             <header class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative">
-                <button @click="viewMode = viewMode === 'main' ? 'target' : 'main'" 
+                <!-- 3'LÜ GÖRÜNÜM DEĞİŞTİRİCİ BUTON -->
+                <button @click="viewMode = nextViewMode" 
                         class="absolute top-6 right-6 w-12 h-12 flex flex-col items-center justify-center rounded-xl bg-slate-100 text-slate-800 hover:bg-slate-800 hover:text-white transition-all shadow-sm">
-                    <i class="fa-solid" :class="viewMode === 'main' ? 'fa-chart-pie' : 'fa-house-chimney'"></i>
-                    <span class="text-[9px] font-bold mt-1 uppercase">{{ viewMode === 'main' ? 'HEDEF' : 'ANA' }}</span>
+                    <i class="fa-solid" :class="viewModeIcon"></i>
+                    <span class="text-[9px] font-bold mt-1 uppercase">{{ viewModeText }}</span>
                 </button>
 
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -100,9 +165,9 @@
                         <div>
                             <h1 class="text-2xl font-black text-slate-900 tracking-tight">DERİMOD</h1>
                             <div class="flex items-center gap-2 mt-1">
-                                <span :class="viewMode === 'main' ? 'bg-emerald-500' : 'bg-amber-500'" class="w-2 h-2 rounded-full animate-pulse"></span>
+                                <span :class="viewMode === 'main' ? 'bg-emerald-500' : (viewMode === 'prim' ? 'bg-indigo-500' : 'bg-amber-500')" class="w-2 h-2 rounded-full animate-pulse"></span>
                                 <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest">
-                                    {{ viewMode === 'main' ? 'Performans Takip' : 'Hedef Yönetimi' }}
+                                    Aylık Hedef Performansı <span class="mx-1 text-slate-300">•</span> {{ pageTitle }}
                                 </p>
                             </div>
                         </div>
@@ -118,7 +183,7 @@
                             </div>
                         </div>
 
-                        <!-- Mağaza Hedefi (Formatlı Component Kullanımı) -->
+                        <!-- Mağaza Hedefi -->
                         <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
                             <span class="text-[10px] uppercase font-bold text-emerald-600 block mb-1">MAĞAZA HEDEFİ</span>
                             <div class="flex items-center bg-transparent">
@@ -142,7 +207,7 @@
                 </div>
             </header>
 
-            <!-- ANA PERFORMANS TABLOSU -->
+            <!-- 1. GÖRÜNÜM: ANA PERFORMANS TABLOSU -->
             <div v-if="viewMode === 'main'">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="table-container">
@@ -156,9 +221,10 @@
                                     <th class="px-3">OFT</th>
                                     <th class="px-2">SATIŞ</th>
                                     <th class="px-2">FATURA</th>
+                                    <th class="px-2 text-indigo-500">ÇAPRAZ</th>
                                     <th class="px-3">UPT</th>
                                     <th class="px-5 text-rose-500 border-l border-slate-200">İADE</th>
-                                    <th class="px-4 text-indigo-500">TAHMİN</th>
+                                    <th class="px-4 text-emerald-600">TAHMİN</th>
                                     <th class="px-3 text-sky-600 bg-sky-50">Ç.GÜN</th>
                                     <th class="px-3">SİL</th>
                                 </tr>
@@ -182,12 +248,16 @@
                                     
                                     <td class="px-2"><input type="number" v-model.number="p.satis" class="w-12 text-center font-bold bg-slate-50 rounded py-1 outline-none"></td>
                                     <td class="px-2"><input type="number" v-model.number="p.fatura" class="w-12 text-center font-bold bg-slate-50 rounded py-1 outline-none"></td>
+                                    
+                                    <td class="px-2 font-black text-indigo-600 bg-indigo-50/30">
+                                        {{ p.satis > p.fatura ? p.satis - p.fatura : 0 }}
+                                    </td>
+                                    
                                     <td class="px-3 font-bold text-slate-800">{{ formatNum(calcUPT(p.satis, p.fatura)) }}</td>
                                     
                                     <td class="px-5 font-bold text-rose-500 bg-rose-50/30 border-l border-slate-100 money-font">{{ formatMoney(kisiBasiIadePayi) }}</td>
                                     
-                                    <!-- Tahmin Okları -->
-                                    <td class="px-4 bg-slate-50/50" v-html="getTahminHtml(calcTahmin(p.gerceklesen, p.cGun))"></td>
+                                    <td class="px-4 py-1.5 bg-slate-50/50" v-html="getTahminHtml(calcTahmin(p.gerceklesen), calcHedef(p.cGun))"></td>
                                     
                                     <td class="px-3 bg-sky-50/50"><input type="number" v-model.number="p.cGun" class="w-12 text-center font-bold text-sky-700 bg-white border border-sky-100 rounded py-1 outline-none"></td>
                                     <td class="px-3"><button @click="silPersonel(index)" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-trash"></i></button></td>
@@ -202,10 +272,10 @@
                                             <span class="text-slate-400 font-bold text-[10px] ml-1">₺</span>
                                         </div>
                                     </td>
-                                    <td class="px-3 text-slate-500">{{ formatPercent(calcHGO(kasa.gerceklesen, kasa.cGun)) }}</td>
-                                    <td colspan="6"></td>
-                                    <td class="px-4 bg-slate-50" v-html="getTahminHtml(calcTahmin(kasa.gerceklesen, kasa.cGun))"></td>
-                                    <td class="px-3"><input type="number" v-model.number="kasa.cGun" class="w-12 text-center text-slate-500 bg-white border rounded py-1 outline-none"></td>
+                                    <td class="px-3 text-slate-400">-</td>
+                                    <td colspan="7"></td>
+                                    <td class="px-4 bg-slate-50" v-html="getTahminHtml(calcTahmin(kasa.gerceklesen), 0)"></td>
+                                    <td class="px-3 text-slate-400">-</td>
                                     <td></td>
                                 </tr>
 
@@ -218,10 +288,10 @@
                                             <span class="text-rose-400 font-bold text-[10px] ml-1">₺</span>
                                         </div>
                                     </td>
-                                    <td class="px-3 text-rose-500">{{ formatPercent(calcHGO(magazaIade.gerceklesen, magazaIade.cGun)) }}</td>
-                                    <td colspan="6"></td>
-                                    <td class="px-4" v-html="getTahminHtml(calcTahmin(magazaIade.gerceklesen, magazaIade.cGun))"></td>
-                                    <td class="px-3"><input type="number" v-model.number="magazaIade.cGun" class="w-12 text-center text-rose-600 bg-white border border-rose-200 rounded py-1 outline-none"></td>
+                                    <td class="px-3 text-rose-400">-</td>
+                                    <td colspan="7"></td>
+                                    <td class="px-4" v-html="getTahminHtml(calcTahmin(magazaIade.gerceklesen), 0, true)"></td>
+                                    <td class="px-3 text-rose-400">-</td>
                                     <td></td>
                                 </tr>
 
@@ -234,9 +304,10 @@
                                     <td class="money-font">{{ formatMoney(toplamlar.oft) }}</td>
                                     <td>{{ toplamlar.satis }}</td>
                                     <td>{{ toplamlar.fatura }}</td>
+                                    <td class="text-indigo-400">{{ toplamlar.caprazSatis }}</td>
                                     <td>{{ formatNum(toplamlar.upt) }}</td>
                                     <td class="text-rose-400 border-l border-slate-700 money-font">{{ formatMoney(toplamlar.iade) }}</td>
-                                    <td class="px-4" v-html="getTahminHtml(toplamlar.tahmin, true)"></td>
+                                    <td class="px-4 py-2" v-html="getTahminHtml(toplamlar.tahmin, magazaHedefi)"></td>
                                     <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
                                     <td></td>
                                 </tr>
@@ -251,7 +322,56 @@
                 </div>
             </div>
 
-            <!-- PERSONEL HEDEF PANELİ -->
+            <!-- 2. GÖRÜNÜM: PERSONEL HEDEF VE PRİM PANELİ -->
+            <div v-else-if="viewMode === 'prim'">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="table-container">
+                        <table class="w-full text-sm text-center whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-300 uppercase font-bold text-[10px] border-b border-slate-700">
+                                    <th class="text-left pl-6 py-4 sticky left-0 z-20 bg-slate-900 border-r border-slate-700">PERSONEL</th>
+                                    <th class="px-6 text-emerald-400 border-l border-slate-700">HEDEF (100%)</th>
+                                    <th class="px-6 text-indigo-400">TAHMİNİ CİRO</th>
+                                    <th class="px-6 text-amber-400">TAHMİNİ HGO</th>
+                                    <th class="px-6 text-rose-400">PRİM KATSAYISI</th>
+                                    <th class="px-6 text-emerald-400 font-black bg-slate-900 border-x border-slate-700 shadow-xl">HAKEDİŞ (PRİM)</th>
+                                    <th class="px-4 text-sky-400 bg-slate-800/50">GÜN</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-700 font-bold">
+                                <tr v-for="p in personel" :key="'prim-'+p.id" class="hover:bg-slate-50">
+                                    <td class="text-left pl-6 py-4 sticky left-0 z-10 bg-white border-r border-slate-100 uppercase">{{ p.isim || 'İSİMSİZ' }}</td>
+                                    <td class="px-6 text-slate-900 bg-emerald-50/50 money-font">{{ formatMoney(calcHedef(p.cGun)) }} ₺</td>
+                                    <td class="px-6 text-indigo-600 bg-indigo-50/50 money-font">{{ formatMoney(calcTahmin(p.gerceklesen)) }} ₺</td>
+                                    <td class="px-6 text-amber-600 bg-amber-50/50 text-base">{{ formatPercent(calcTahminiHGO(p.gerceklesen, p.cGun)) }}</td>
+                                    <td class="px-6 text-rose-600 bg-rose-50/50">{{ formatKatsayi(getPrimKatsayi(calcTahminiHGO(p.gerceklesen, p.cGun))) }}</td>
+                                    <td class="px-6 text-emerald-600 bg-emerald-100/60 money-font text-lg font-black border-x border-slate-100">{{ formatMoney(calcPrim(p.gerceklesen, p.cGun)) }} ₺</td>
+                                    <td class="px-4 text-sky-600 bg-slate-50/50">{{ p.cGun }}</td>
+                                </tr>
+                                
+                                <tr class="bg-slate-800 text-white font-bold">
+                                    <td class="text-left pl-6 py-5 sticky left-0 z-10 bg-slate-900 border-r border-slate-700">TOPLAM EFOR</td>
+                                    <td class="px-6 text-emerald-400 text-lg money-font">{{ formatMoney(magazaHedefi) }} ₺</td>
+                                    <td class="px-6 text-indigo-400 text-lg money-font">{{ formatMoney(toplamlar.tahmin) }} ₺</td>
+                                    <td class="px-6 text-amber-400 text-lg">{{ formatPercent(magazaHedefi > 0 ? toplamlar.tahmin / magazaHedefi : 0) }}</td>
+                                    <td class="px-6 text-slate-400">-</td>
+                                    <td class="px-6 text-emerald-400 text-xl font-black bg-slate-900 money-font border-x border-slate-700">{{ formatMoney(getToplamPrim()) }} ₺</td>
+                                    <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex items-start gap-3 text-xs font-semibold text-slate-500 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-indigo-500 text-base"></i>
+                    <p class="leading-relaxed">
+                        Prim hesaplamaları güncel tabloya göre yapılmaktadır. Sistem, her personelin o anki ivmesine göre ay sonu tahmini cirosunu bulur ve bu tahmini cironun hedefine (HGO) bölümüyle bir katsayı belirler.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3. GÖRÜNÜM: HEDEF BAREMLERİ PANELİ -->
             <div v-else>
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="table-container">
@@ -267,25 +387,32 @@
                                 </tr>
                             </thead>
                             <tbody class="text-slate-700 font-bold">
-                                <tr v-for="p in personel" :key="'trg-'+p.id" class="hover:bg-slate-50">
+                                <tr v-for="p in personel" :key="'barem-'+p.id" class="hover:bg-slate-50">
                                     <td class="text-left pl-6 py-4 sticky left-0 z-10 bg-white border-r border-slate-100 uppercase">{{ p.isim || 'İSİMSİZ' }}</td>
-                                    <td class="px-6 text-slate-900 bg-emerald-50/50 money-font">{{ formatMoney(calcHedef(p.cGun)) }}</td>
-                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.1) }}</td>
-                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.2) }}</td>
-                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.3) }}</td>
+                                    <td class="px-6 text-slate-900 bg-emerald-50/50 money-font">{{ formatMoney(calcHedef(p.cGun)) }} ₺</td>
+                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.1) }} ₺</td>
+                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.2) }} ₺</td>
+                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.3) }} ₺</td>
                                     <td class="px-4 text-sky-600 bg-slate-50/50">{{ p.cGun }}</td>
                                 </tr>
                                 <tr class="bg-slate-800 text-white font-bold">
                                     <td class="text-left pl-6 py-5 sticky left-0 z-10 bg-slate-900 border-r border-slate-700">TOPLAM HEDEF</td>
-                                    <td class="px-6 text-emerald-400 text-lg money-font">{{ formatMoney(magazaHedefi) }}</td>
-                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.1) }}</td>
-                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.2) }}</td>
-                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.3) }}</td>
+                                    <td class="px-6 text-emerald-400 text-lg money-font">{{ formatMoney(magazaHedefi) }} ₺</td>
+                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.1) }} ₺</td>
+                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.2) }} ₺</td>
+                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.3) }} ₺</td>
                                     <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
+                
+                <div class="mt-4 flex items-start gap-3 text-xs font-semibold text-slate-500 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <i class="fa-solid fa-bullseye mt-0.5 text-amber-500 text-base"></i>
+                    <p class="leading-relaxed">
+                        Bu panel personellerin üst hedeflere ulaşmak için kırmaları gereken parasal baremleri gösterir. Tüm hedefler çalışılan güne oranla adil şekilde dağıtılmıştır.
+                    </p>
                 </div>
             </div>
 
@@ -295,185 +422,268 @@
     <script>
         const { createApp } = Vue;
 
-        // VUE BİLEŞENİ: Mobil cihazlarda hatasız giriş yapmayı sağlayan akıllı input.
         const FormatliInput = {
             props: ['modelValue', 'siniflar'],
             emits: ['update:modelValue'],
-            data() {
-                return {
-                    isFocused: false,
-                    // Yazı yazarken virgüllü halini tutan geçici değişken
-                    tempValue: this.modelValue
-                }
-            },
-            watch: {
-                modelValue(newVal) {
-                    if(!this.isFocused) {
-                        this.tempValue = newVal;
-                    }
-                }
-            },
             computed: {
                 displayValue() {
-                    // Kullanıcı hücrenin içindeyken (odaklanmışken) saf rakamları gösterir.
-                    if (this.isFocused) {
-                        return this.tempValue === 0 ? '' : this.tempValue;
-                    } 
-                    // Kullanıcı hücreden çıktığında sayıyı şık bir formata dönüştürür.
-                    else {
-                        if (!this.tempValue && this.tempValue !== 0) return '';
-                        return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(this.tempValue);
-                    }
+                    if (this.modelValue === null || this.modelValue === undefined || this.modelValue === 0) return '';
+                    return new Intl.NumberFormat('tr-TR').format(this.modelValue);
                 }
             },
             methods: {
-                onInput(e) {
-                    // Kullanıcı virgül kullanırsa kod mantığı için noktaya çevir
-                    let val = e.target.value.replace(/,/g, '.');
-                    let num = parseFloat(val);
-                    this.tempValue = val; 
-                    this.$emit('update:modelValue', isNaN(num) ? 0 : num);
+                onInput(event) {
+                    let val = event.target.value.replace(/[^0-9]/g, '');
+                    let num = parseInt(val, 10);
+                    if (isNaN(num)) num = 0;
+                    this.$emit('update:modelValue', num);
+                    event.target.value = num === 0 ? '' : new Intl.NumberFormat('tr-TR').format(num);
                 }
             },
-            // inputmode="decimal" telefonda doğru sayısal klavyenin çıkmasını sağlar.
-            template: `<input type="text" inputmode="decimal" :class="['formatli-input', siniflar]" :value="displayValue" @input="onInput" @focus="isFocused = true" @blur="isFocused = false" placeholder="0,00" />`
+            template: `<input type="text" :value="displayValue" @input="onInput" :class="siniflar" class="formatli-input" placeholder="0">`
         };
 
         const app = createApp({
-            components: { 'formatli-input': FormatliInput },
+            components: {
+                'formatli-input': FormatliInput
+            },
             data() {
                 return {
-                    viewMode: 'main',
+                    viewMode: 'main', // 'main', 'prim', 'barem'
+                    gunGecen: 1,
+                    gunToplam: 30,
+                    magazaHedefi: 1000000,
                     saveStatus: 'idle',
-                    magazaHedefi: 9100000,
-                    gunGecen: 19,
-                    gunToplam: 28,
-                    kasa: { cGun: 26, gerceklesen: 1000 },
-                    magazaIade: { cGun: 26, gerceklesen: -85000 },
                     personel: [
-                        { id: 1, isim: 'ERTAN KARABULUT', cGun: 26, gerceklesen: 524000, satis: 94, fatura: 55 },
-                        { id: 2, isim: 'EMRE SARIBOĞA', cGun: 26, gerceklesen: 499723.02, satis: 124, fatura: 69 },
-                        { id: 3, isim: 'SERCAN COŞKUN', cGun: 26, gerceklesen: 663000, satis: 145, fatura: 72 },
-                        { id: 4, isim: 'CİHAN ÖCAL', cGun: 26, gerceklesen: 803000, satis: 131, fatura: 77 },
-                        { id: 5, isim: 'EMRE YALÇINKAYA', cGun: 26, gerceklesen: 669000, satis: 157, fatura: 83 },
-                        { id: 6, isim: 'MEHMET ERASLAN', cGun: 26, gerceklesen: 237000, satis: 22, fatura: 12 },
-                        { id: 7, isim: 'EREN YETİM', cGun: 26, gerceklesen: 215000, satis: 0, fatura: 0 }
-                    ]
-                }
+                        { id: 1, isim: 'PERSONEL 1', gerceklesen: 0, satis: 0, fatura: 0, cGun: 26 },
+                        { id: 2, isim: 'PERSONEL 2', gerceklesen: 0, satis: 0, fatura: 0, cGun: 26 }
+                    ],
+                    kasa: { gerceklesen: 0 },
+                    magazaIade: { gerceklesen: 0 }
+                };
             },
             computed: {
-                toplamCalismaGunu() {
-                    let total = 0;
-                    this.personel.forEach(p => total += (Number(p.cGun) || 0));
-                    total += (Number(this.kasa.cGun) || 0) + (Number(this.magazaIade.cGun) || 0);
-                    return total;
+                nextViewMode() {
+                    if (this.viewMode === 'main') return 'prim';
+                    if (this.viewMode === 'prim') return 'barem';
+                    return 'main';
                 },
-                gunlukBirimHedef() {
-                    return this.toplamCalismaGunu > 0 ? (Number(this.magazaHedefi) || 0) / this.toplamCalismaGunu : 0;
+                viewModeText() {
+                    if (this.viewMode === 'main') return 'PRİM';
+                    if (this.viewMode === 'prim') return 'BAREM';
+                    return 'ANA';
+                },
+                viewModeIcon() {
+                    if (this.viewMode === 'main') return 'fa-money-bill-wave';
+                    if (this.viewMode === 'prim') return 'fa-bullseye';
+                    return 'fa-house-chimney';
+                },
+                pageTitle() {
+                    if (this.viewMode === 'main') return 'Ana Tablo';
+                    if (this.viewMode === 'prim') return 'Hedef ve Prim Yönetimi';
+                    return 'Hedef Baremleri';
                 },
                 kisiBasiIadePayi() {
-                    return this.personel.length > 0 ? Math.abs(Number(this.magazaIade.gerceklesen) || 0) / this.personel.length : 0;
+                    if (this.personel.length === 0) return 0;
+                    return this.magazaIade.gerceklesen / this.personel.length;
                 },
                 toplamlar() {
-                    let cGun = 0, gerceklesen = 0, satis = 0, fatura = 0;
-                    this.personel.forEach(p => {
-                        cGun += (Number(p.cGun) || 0);
-                        gerceklesen += (Number(p.gerceklesen) || 0);
-                        satis += (Number(p.satis) || 0);
-                        fatura += (Number(p.fatura) || 0);
-                    });
-                    gerceklesen += (Number(this.kasa.gerceklesen) || 0) + (Number(this.magazaIade.gerceklesen) || 0);
-                    cGun += (Number(this.kasa.cGun) || 0) + (Number(this.magazaIade.cGun) || 0);
+                    let gerceklesen = this.kasa.gerceklesen - this.magazaIade.gerceklesen;
+                    let satis = 0;
+                    let fatura = 0;
+                    let caprazSatis = 0;
+                    let cGun = 0; 
 
-                    let hgo = this.magazaHedefi > 0 ? (gerceklesen / this.magazaHedefi) * 100 : 0;
+                    this.personel.forEach(p => {
+                        gerceklesen += p.gerceklesen;
+                        satis += (p.satis || 0);
+                        fatura += (p.fatura || 0);
+                        
+                        let pSatis = p.satis || 0;
+                        let pFatura = p.fatura || 0;
+                        caprazSatis += (pSatis > pFatura ? pSatis - pFatura : 0);
+                        
+                        cGun += p.cGun;
+                    });
+
+                    let iade = this.magazaIade.gerceklesen;
                     let osf = satis > 0 ? gerceklesen / satis : 0;
                     let oft = fatura > 0 ? gerceklesen / fatura : 0;
                     let upt = fatura > 0 ? satis / fatura : 0;
-                    let tahmin = this.gunGecen > 0 ? ((gerceklesen / this.gunGecen) * this.gunToplam) / this.magazaHedefi * 100 : 0;
+                    let tahmin = this.gunGecen > 0 ? (gerceklesen / this.gunGecen) * this.gunToplam : 0;
+                    let hgo = this.magazaHedefi > 0 ? gerceklesen / this.magazaHedefi : 0;
 
-                    return { cGun, gerceklesen, hgo, osf, oft, satis, fatura, upt, iade: Math.abs(Number(this.magazaIade.gerceklesen) || 0), tahmin };
+                    return { gerceklesen, satis, fatura, caprazSatis, cGun, iade, osf, oft, upt, tahmin, hgo };
+                }
+            },
+            methods: {
+                formatMoney(val) {
+                    if (!val || isNaN(val) || val === 0) return '0';
+                    return new Intl.NumberFormat('tr-TR').format(Math.round(val));
+                },
+                formatPercent(val) {
+                    if (!val || isNaN(val)) return '%0';
+                    return '%' + Math.round(val * 100);
+                },
+                formatNum(val) {
+                    if (!val || isNaN(val)) return '0.00';
+                    return val.toFixed(2);
+                },
+                calcHedef(cGun) {
+                    if (this.toplamlar.cGun === 0) return 0;
+                    return (this.magazaHedefi / this.toplamlar.cGun) * cGun;
+                },
+                calcHGO(gerceklesen, cGun) {
+                    let hedef = this.calcHedef(cGun);
+                    if (hedef === 0) return 0;
+                    return gerceklesen / hedef;
+                },
+                calcOSF(gerceklesen, satis) {
+                    return satis > 0 ? gerceklesen / satis : 0;
+                },
+                calcOFT(gerceklesen, fatura) {
+                    return fatura > 0 ? gerceklesen / fatura : 0;
+                },
+                calcUPT(satis, fatura) {
+                    return fatura > 0 ? satis / fatura : 0;
+                },
+                calcTahmin(gerceklesen) {
+                    return this.gunGecen > 0 ? (gerceklesen / this.gunGecen) * this.gunToplam : 0;
+                },
+                getTahminHtml(tahmin, hedef, isIade = false) {
+                    if (isNaN(tahmin)) tahmin = 0;
+                    if (isNaN(hedef)) hedef = 0;
+                    
+                    let absStr = this.formatMoney(tahmin);
+
+                    if (hedef > 0) {
+                        let yuzde = (tahmin / hedef) * 100;
+                        let isGood = yuzde >= 100;
+                        
+                        let color = isGood ? 'text-emerald-500' : 'text-rose-500';
+                        let icon = isGood ? '<i class="fa-solid fa-arrow-trend-up"></i>' : '<i class="fa-solid fa-arrow-trend-down"></i>';
+                        let yuzdeStr = '%' + Math.round(yuzde);
+                        
+                        return `<div class="flex flex-col items-center justify-center ${color} leading-none">
+                                    <div class="flex items-center gap-1 font-black text-sm">
+                                        ${icon} <span>${yuzdeStr}</span>
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-semibold money-font mt-1 tracking-wider">${absStr} ₺</span>
+                                </div>`;
+                    } else {
+                        let color = 'text-slate-400';
+                        return `<div class="flex items-center justify-center font-bold ${color}">
+                                    <span class="money-font">${absStr}</span>
+                                </div>`;
+                    }
+                },
+                
+                // Prim Hesaplamaları
+                calcTahminiHGO(gerceklesen, cGun) {
+                    let hedef = this.calcHedef(cGun);
+                    let tahmin = this.calcTahmin(gerceklesen);
+                    return hedef > 0 ? (tahmin / hedef) : 0;
+                },
+                getPrimKatsayi(hgoOrani) {
+                    const p = hgoOrani * 100;
+                    if (p >= 130) return 0.030;
+                    if (p >= 120) return 0.027;
+                    if (p >= 115) return 0.024;
+                    if (p >= 110) return 0.020;
+                    if (p >= 105) return 0.018;
+                    if (p >= 100) return 0.017;
+                    if (p >= 95) return 0.014;
+                    if (p >= 90) return 0.012;
+                    if (p >= 85) return 0.010;
+                    if (p >= 80) return 0.005;
+                    return 0;
+                },
+                formatKatsayi(oran) {
+                    if (oran === 0) return '%0';
+                    return '%' + (oran * 100).toFixed(2).replace('.', ',');
+                },
+                calcPrim(gerceklesen, cGun) {
+                    let tahmin = this.calcTahmin(gerceklesen);
+                    let hgo = this.calcTahminiHGO(gerceklesen, cGun);
+                    let katsayi = this.getPrimKatsayi(hgo);
+                    return tahmin * katsayi;
+                },
+                getToplamPrim() {
+                    let total = 0;
+                    this.personel.forEach(p => {
+                        total += this.calcPrim(p.gerceklesen, p.cGun);
+                    });
+                    return total;
+                },
+
+                eklePersonel() {
+                    const id = this.personel.length > 0 ? Math.max(...this.personel.map(p => p.id)) + 1 : 1;
+                    this.personel.push({
+                        id: id,
+                        isim: 'YENİ PERSONEL',
+                        gerceklesen: 0,
+                        satis: 0,
+                        fatura: 0,
+                        cGun: 26
+                    });
+                },
+                silPersonel(index) {
+                    if (confirm('Bu personeli silmek istediğinize emin misiniz?')) {
+                        this.personel.splice(index, 1);
+                    }
+                },
+                verileriKaydet() {
+                    const data = {
+                        gunGecen: this.gunGecen,
+                        gunToplam: this.gunToplam,
+                        magazaHedefi: this.magazaHedefi,
+                        personel: this.personel,
+                        kasa: this.kasa,
+                        magazaIade: this.magazaIade
+                    };
+                    localStorage.setItem('aylik_hedef_performansi_data', JSON.stringify(data));
+                    
+                    this.saveStatus = 'saved';
+                    setTimeout(() => { this.saveStatus = 'idle'; }, 2000);
+                },
+                verileriYukle() {
+                    let saved = localStorage.getItem('aylik_hedef_performansi_data');
+                    if (!saved) saved = localStorage.getItem('aylik_hedef_pro_data');
+                    if (!saved) saved = localStorage.getItem('derimod_performans_data');
+
+                    if (saved) {
+                        try {
+                            const data = JSON.parse(saved);
+                            this.gunGecen = data.gunGecen || 1;
+                            this.gunToplam = data.gunToplam || 30;
+                            this.magazaHedefi = data.magazaHedefi || 1000000;
+                            if (data.personel) {
+                                this.personel = data.personel.map(p => {
+                                    delete p.caprazSatis;
+                                    return p;
+                                });
+                            }
+                            if (data.kasa) this.kasa = { gerceklesen: data.kasa.gerceklesen || 0 };
+                            if (data.magazaIade) this.magazaIade = { gerceklesen: data.magazaIade.gerceklesen || 0 };
+                        } catch (e) {
+                            console.error('Veriler yüklenirken bir hata oluştu', e);
+                        }
+                    }
                 }
             },
             mounted() {
                 this.verileriYukle();
+                
                 setTimeout(() => {
-                    document.getElementById('native-loader').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
+                    const loader = document.getElementById('native-loader');
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.remove(), 500);
+                    }
                 }, 800);
-            },
-            methods: {
-                verileriKaydet() {
-                    try {
-                        const veri = {
-                            magazaHedefi: this.magazaHedefi,
-                            gunGecen: this.gunGecen,
-                            gunToplam: this.gunToplam,
-                            personel: JSON.parse(JSON.stringify(this.personel)),
-                            kasa: JSON.parse(JSON.stringify(this.kasa)),
-                            magazaIade: JSON.parse(JSON.stringify(this.magazaIade))
-                        };
-                        localStorage.setItem('derimod_system_v7', JSON.stringify(veri));
-                        this.saveStatus = 'saved';
-                        setTimeout(() => { this.saveStatus = 'idle'; }, 2000);
-                    } catch (error) { console.error(error); }
-                },
-                verileriYukle() {
-                    const kayitli = localStorage.getItem('derimod_system_v7');
-                    if (kayitli) {
-                        const d = JSON.parse(kayitli);
-                        Object.assign(this, d);
-                    }
-                },
-                calcHedef(cGun) { return this.gunlukBirimHedef * (Number(cGun) || 0); },
-                calcHGO(gerceklesen, cGun) {
-                    const h = this.calcHedef(cGun);
-                    return h > 0 ? ((Number(gerceklesen) || 0) / h) * 100 : 0;
-                },
-                calcTahmin(gerceklesen, cGun) {
-                    const h = this.calcHedef(cGun);
-                    return (this.gunGecen > 0 && h > 0) ? (((Number(gerceklesen) || 0) / this.gunGecen) * this.gunToplam) / h * 100 : 0;
-                },
-                calcOSF(gerceklesen, satis) { return Number(satis) > 0 ? (Number(gerceklesen) || 0) / Number(satis) : 0; },
-                calcOFT(gerceklesen, fatura) { return Number(fatura) > 0 ? (Number(gerceklesen) || 0) / Number(fatura) : 0; },
-                calcUPT(satis, fatura) { return Number(fatura) > 0 ? (Number(satis) || 0) / Number(fatura) : 0; },
-                
-                formatMoney(value) { return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0); },
-                formatNum(value) { return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0); },
-                formatPercent(value, decimals = 2) { return '%' + new Intl.NumberFormat('tr-TR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(Number(value) || 0); },
-                
-                getHgoHtml(hgo) {
-                    const color = hgo >= 100 ? 'text-emerald-600' : hgo >= 80 ? 'text-indigo-600' : 'text-rose-500';
-                    return `<span class="${color} font-black text-sm tracking-tighter">${this.formatPercent(hgo)}</span>`;
-                },
-
-                getTahminHtml(tahmin, isDark = false) {
-                    let colorClass = '';
-                    let iconClass = '';
-
-                    if (tahmin >= 120) {
-                        colorClass = isDark ? 'text-blue-400' : 'text-blue-500';
-                        iconClass = 'fa-solid fa-arrow-up';
-                    } else if (tahmin >= 100) {
-                        colorClass = isDark ? 'text-emerald-400' : 'text-emerald-500';
-                        iconClass = 'fa-solid fa-arrow-up';
-                    } else if (tahmin >= 90) {
-                        colorClass = isDark ? 'text-amber-400' : 'text-amber-500';
-                        iconClass = 'fa-solid fa-arrow-right -rotate-45';
-                    } else {
-                        colorClass = isDark ? 'text-rose-400' : 'text-rose-500';
-                        iconClass = 'fa-solid fa-arrow-down';
-                    }
-
-                    return `<div class="flex items-center justify-center gap-1.5 font-black ${colorClass} text-sm">
-                                <i class="${iconClass}"></i>
-                                <span>${this.formatPercent(tahmin, 0)}</span>
-                            </div>`;
-                },
-
-                eklePersonel() { this.personel.push({ id: Date.now(), isim: 'YENİ PERSONEL', cGun: 26, gerceklesen: 0, satis: 0, fatura: 0 }); },
-                silPersonel(index) { if(confirm('Bu personeli silmek istediğinize emin misiniz?')) this.personel.splice(index, 1); }
             }
         });
+
         app.mount('#app');
     </script>
 </body>
