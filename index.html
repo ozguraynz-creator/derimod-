@@ -2,729 +2,242 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aylık Hedef Performansı</title>
-    
-    <!-- PWA (Mobil Uygulama) Ayarları -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Derimod">
-    <meta name="theme-color" content="#1e293b">
-
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-
-    <!-- Dinamik İkon ve PWA Kurulumu (Kırmızı Zemin, 50. Yıl Beyaz Yazı) -->
-    <script>
-        function setupAppIconAndManifest() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#e30613';
-            ctx.fillRect(0, 0, 512, 512);
-
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.font = 'bold 120px Arial, sans-serif';
-            ctx.fillText('50. Yıl', 256, 256);
-
-            const iconDataURL = canvas.toDataURL('image/png');
-
-            let appleLink = document.createElement('link');
-            appleLink.rel = 'apple-touch-icon';
-            appleLink.href = iconDataURL;
-            document.head.appendChild(appleLink);
-
-            let faviconLink = document.createElement('link');
-            faviconLink.rel = 'icon';
-            faviconLink.href = iconDataURL;
-            document.head.appendChild(faviconLink);
-
-            const manifest = {
-                name: "Aylık Hedef Performansı",
-                short_name: "Derimod",
-                start_url: ".",
-                display: "standalone",
-                background_color: "#f1f5f9",
-                theme_color: "#1e293b",
-                icons: [{
-                    src: iconDataURL,
-                    sizes: "512x512",
-                    type: "image/png"
-                }]
-            };
-            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-            let manifestLink = document.createElement('link');
-            manifestLink.rel = 'manifest';
-            manifestLink.href = URL.createObjectURL(manifestBlob);
-            document.head.appendChild(manifestLink);
-        }
-        setupAppIconAndManifest();
-    </script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-
-        body { 
-            font-family: 'Inter', sans-serif;
-            margin: 0; 
-            padding: 0; 
-            background-color: #f1f5f9; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        
-        .formatli-input {
-            width: 100%;
-            background: transparent;
-            text-align: right;
-            outline: none;
-            font-variant-numeric: tabular-nums;
-            font-weight: bold;
-            padding-right: 0.5rem;
-        }
-        .formatli-input:focus {
-            background-color: white;
-            border-radius: 4px;
-            box-shadow: 0 0 0 2px #94a3b8;
-        }
-        
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        input[type=number] { 
-            -moz-appearance: textfield; 
-            background: transparent; 
-            width: 100%; 
-            text-align: center; 
-            outline: none; 
-            font-variant-numeric: tabular-nums; 
-            font-weight: 800;
-        }
-        input[type=number]:focus {
-            background-color: white;
-            border-radius: 4px;
-            box-shadow: 0 0 0 2px #94a3b8;
-        }
-
-        .table-container { overflow-x: auto; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8fafc; }
-        th, td { padding: 0.6rem 0.4rem; white-space: nowrap; border-bottom: 1px solid #e2e8f0; }
-
-        .money-font { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
-
-        @media (orientation: landscape) {
-            #app { zoom: 0.8; }
-            header { padding: 1rem !important; }
-            .sticky-left { position: sticky; left: 0; z-index: 20; background: white; }
-        }
-
-        #native-loader { position: fixed; inset: 0; background: #1e293b; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #334155; border-top-color: #fbbf24; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        [v-cloak] { display: none !important; }
-    </style>
 </head>
-<body class="antialiased text-slate-800">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
 
-    <div id="native-loader">
-        <div class="spinner"></div>
-        <h2 class="mt-6 font-black text-white text-2xl tracking-tighter">DERİMOD</h2>
-        <p class="text-slate-400 text-xs mt-2 uppercase tracking-widest font-bold">Aylık Hedef Performansı</p>
-    </div>
-
-    <div id="app" v-cloak class="min-h-screen p-4">
-        <div class="max-w-[1400px] mx-auto space-y-6">
-            
-            <!-- ÜST HEADER PANELİ -->
-            <header class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative">
-                <button @click="viewMode = nextViewMode" 
-                        class="absolute top-6 right-6 w-12 h-12 flex flex-col items-center justify-center rounded-xl bg-slate-100 text-slate-800 hover:bg-slate-800 hover:text-white transition-all shadow-sm">
-                    <i class="fa-solid" :class="viewModeIcon"></i>
-                    <span class="text-[9px] font-bold mt-1 uppercase">{{ viewModeText }}</span>
-                </button>
-
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-200">
-                            <span class="text-white font-black text-2xl">D</span>
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-black text-slate-900 tracking-tight">DERİMOD</h1>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span :class="viewMode === 'main' ? 'bg-emerald-500' : (viewMode === 'prim' ? 'bg-indigo-500' : 'bg-amber-500')" class="w-2 h-2 rounded-full animate-pulse"></span>
-                                <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest">
-                                    Aylık Hedef Performansı <span class="mx-1 text-slate-300">•</span> {{ pageTitle }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:w-auto">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">GÜN / TOPLAM</span>
-                            <div class="flex items-center gap-2 justify-center">
-                                <input type="number" v-model.number="gunGecen" class="w-12 text-center font-bold bg-white border border-slate-200 rounded py-1 outline-none">
-                                <span class="text-slate-300 font-bold">/</span>
-                                <input type="number" v-model.number="gunToplam" class="w-12 text-center font-bold text-slate-500 bg-white border border-slate-200 rounded py-1 outline-none">
-                            </div>
-                        </div>
-
-                        <!-- Mağaza Hedefi -->
-                        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                            <span class="text-[10px] uppercase font-bold text-emerald-600 block mb-1">MAĞAZA HEDEFİ</span>
-                            <div class="flex items-center bg-transparent">
-                                <formatli-input v-model="magazaHedefi" siniflar="text-emerald-700 text-lg"></formatli-input>
-                                <span class="text-emerald-700 font-bold text-sm ml-1">₺</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 shadow-inner">
-                            <span class="text-[10px] uppercase font-bold text-slate-500 block mb-1">TOPLAM CİRO</span>
-                            <span class="text-lg font-black text-emerald-400 block text-right money-font">{{ formatMoney(toplamlar.gerceklesen) }}</span>
-                        </div>
-
-                        <button @click="verileriKaydet" 
-                                class="flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-300 font-black shadow-md py-3"
-                                :class="saveStatus === 'saved' ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700'">
-                            <i :class="saveStatus === 'saved' ? 'fa-solid fa-check-double' : 'fa-solid fa-cloud-arrow-up'" class="text-lg"></i>
-                            <span class="text-[10px]">{{ saveStatus === 'saved' ? 'KAYDEDİLDİ' : 'KAYDET' }}</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <!-- 1. GÖRÜNÜM: ANA PERFORMANS TABLOSU -->
-            <div v-if="viewMode === 'main'">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="table-container">
-                        <table class="w-full text-sm text-center whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-500 uppercase font-bold text-[10px]">
-                                    <th class="text-left pl-6 py-4 sticky left-0 z-20 bg-slate-100 border-r border-slate-200">PERSONEL</th>
-                                    <th class="px-6 text-emerald-600">GERÇEKLEŞEN</th>
-                                    <th class="px-3">HGO</th>
-                                    <th class="px-3">OSF</th>
-                                    <th class="px-3">OFT</th>
-                                    <th class="px-2">SATIŞ</th>
-                                    <th class="px-2">FATURA</th>
-                                    <th class="px-2 text-indigo-500">ÇAPRAZ</th>
-                                    <th class="px-3">UPT</th>
-                                    <th class="px-5 text-rose-500 border-l border-slate-200">İADE</th>
-                                    <th class="px-4">TAHMİN</th>
-                                    <th class="px-3 text-sky-600 bg-sky-50">Ç.GÜN</th>
-                                    <th class="px-3">SİL</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-slate-700">
-                                <tr v-for="(p, index) in personel" :key="p.id" class="hover:bg-slate-50">
-                                    <td class="text-left pl-6 sticky left-0 z-10 bg-white border-r border-slate-100 font-bold">
-                                        <input type="text" v-model="p.isim" class="w-32 bg-transparent outline-none font-bold text-slate-700 uppercase" style="text-align: left;">
-                                    </td>
-                                    
-                                    <td class="px-4">
-                                        <div class="flex items-center w-32 mx-auto bg-emerald-50 rounded px-2 py-1 border border-emerald-100 focus-within:border-emerald-400">
-                                            <formatli-input v-model="p.gerceklesen" siniflar="text-emerald-700"></formatli-input>
-                                            <span class="text-emerald-600 font-bold text-[10px] ml-1">₺</span>
-                                        </div>
-                                    </td>
-
-                                    <td class="px-3 font-bold" :class="getHgoColorClass(calcHGO(p.gerceklesen, p.cGun) * 100)">
-                                        {{ formatPercent(calcHGO(p.gerceklesen, p.cGun)) }}
-                                    </td>
-                                    
-                                    <td class="px-3 text-slate-500 money-font">{{ formatMoney(calcOSF(p.gerceklesen, p.satis)) }}</td>
-                                    <td class="px-3 text-slate-500 money-font">{{ formatMoney(calcOFT(p.gerceklesen, p.fatura)) }}</td>
-                                    
-                                    <td class="px-2"><input type="number" v-model.number="p.satis" class="w-12 text-center font-bold bg-slate-50 rounded py-1 outline-none"></td>
-                                    <td class="px-2"><input type="number" v-model.number="p.fatura" class="w-12 text-center font-bold bg-slate-50 rounded py-1 outline-none"></td>
-                                    
-                                    <td class="px-2 font-black text-indigo-600 bg-indigo-50/30">
-                                        {{ p.satis > p.fatura ? p.satis - p.fatura : 0 }}
-                                    </td>
-                                    
-                                    <td class="px-3 font-bold text-slate-800">{{ formatNum(calcUPT(p.satis, p.fatura)) }}</td>
-                                    
-                                    <td class="px-5 font-bold text-rose-500 bg-rose-50/30 border-l border-slate-100 money-font">{{ formatMoney(kisiBasiIadePayi) }}</td>
-                                    
-                                    <td class="px-4 py-1.5 bg-slate-50/50" v-html="getTahminHtml(calcTahmin(p.gerceklesen), calcHedef(p.cGun))"></td>
-                                    
-                                    <td class="px-3 bg-sky-50/50"><input type="number" v-model.number="p.cGun" class="w-12 text-center font-bold text-sky-700 bg-white border border-sky-100 rounded py-1 outline-none"></td>
-                                    <td class="px-3"><button @click="silPersonel(index)" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-trash"></i></button></td>
-                                </tr>
-
-                                <!-- Kasa İşlemleri -->
-                                <tr class="bg-slate-50 font-bold">
-                                    <td class="text-left pl-6 py-3 sticky left-0 z-10 bg-slate-50 border-r border-slate-200 text-xs text-slate-500">KASA İŞLEMLERİ</td>
-                                    <td class="px-4">
-                                        <div class="flex items-center w-32 mx-auto bg-white rounded px-2 py-1 border focus-within:border-slate-400">
-                                            <formatli-input v-model="kasa.gerceklesen" siniflar="text-slate-700"></formatli-input>
-                                            <span class="text-slate-400 font-bold text-[10px] ml-1">₺</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-3 text-slate-400">-</td>
-                                    <td colspan="7"></td>
-                                    <td class="px-4 bg-slate-50" v-html="getTahminHtml(calcTahmin(kasa.gerceklesen), 0)"></td>
-                                    <td class="px-3 text-slate-400">-</td>
-                                    <td></td>
-                                </tr>
-
-                                <!-- Ortak İade -->
-                                <tr class="bg-rose-50/50 font-bold">
-                                    <td class="text-left pl-6 py-3 sticky left-0 z-10 bg-rose-50 border-r border-rose-200 text-xs text-rose-600">ORTAK İADELER</td>
-                                    <td class="px-4">
-                                        <div class="flex items-center w-32 mx-auto bg-white rounded px-2 py-1 border border-rose-200 focus-within:border-rose-400">
-                                            <formatli-input v-model="magazaIade.gerceklesen" siniflar="text-rose-600"></formatli-input>
-                                            <span class="text-rose-400 font-bold text-[10px] ml-1">₺</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-3 text-rose-400">-</td>
-                                    <td colspan="7"></td>
-                                    <td class="px-4" v-html="getTahminHtml(calcTahmin(magazaIade.gerceklesen), 0, true)"></td>
-                                    <td class="px-3 text-rose-400">-</td>
-                                    <td></td>
-                                </tr>
-
-                                <!-- GENEL TOPLAM -->
-                                <tr class="bg-slate-800 text-white font-bold text-sm">
-                                    <td class="text-left pl-6 py-5 sticky left-0 z-10 bg-slate-800 border-r border-slate-700">GENEL TOPLAM</td>
-                                    <td class="text-emerald-400 text-right pr-6 money-font text-lg">{{ formatMoney(toplamlar.gerceklesen) }}</td>
-                                    <td :class="getHgoColorClass(toplamlar.hgo * 100, false, true)">{{ formatPercent(toplamlar.hgo) }}</td>
-                                    <td class="money-font">{{ formatMoney(toplamlar.osf) }}</td>
-                                    <td class="money-font">{{ formatMoney(toplamlar.oft) }}</td>
-                                    <td>{{ toplamlar.satis }}</td>
-                                    <td>{{ toplamlar.fatura }}</td>
-                                    <td class="text-indigo-400">{{ toplamlar.caprazSatis }}</td>
-                                    <td>{{ formatNum(toplamlar.upt) }}</td>
-                                    <td class="text-rose-400 border-l border-slate-700 money-font">{{ formatMoney(toplamlar.iade) }}</td>
-                                    <td class="px-4 py-2" v-html="getTahminHtml(toplamlar.tahmin, magazaHedefi, false, true)"></td>
-                                    <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="mt-4 pb-10">
-                    <button @click="eklePersonel" class="bg-white border border-slate-300 text-slate-700 px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm hover:bg-slate-800 hover:text-white transition-all">
-                        <i class="fa-solid fa-user-plus mr-2"></i> PERSONEL EKLE
-                    </button>
-                </div>
+<div id="app" class="max-w-7xl mx-auto p-4 md:p-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Aylık Hedef Performansı</h1>
+            <p class="text-sm text-slate-500">Performans Paneli ve Prim Yönetimi</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-slate-600">Aydaki Toplam Gün:</label>
+                <input type="number" v-model.number="aylikGunSayisi" class="w-20 border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border text-center">
             </div>
-
-            <!-- 2. GÖRÜNÜM: PERSONEL HEDEF VE PRİM PANELİ -->
-            <div v-else-if="viewMode === 'prim'">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="table-container">
-                        <table class="w-full text-sm text-center whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-slate-800 text-slate-300 uppercase font-bold text-[10px] border-b border-slate-700">
-                                    <th class="text-left pl-6 py-4 sticky left-0 z-20 bg-slate-900 border-r border-slate-700">PERSONEL</th>
-                                    <th class="px-6 text-emerald-400 border-l border-slate-700">HEDEF (100%)</th>
-                                    <th class="px-6 text-indigo-400">TAHMİNİ CİRO</th>
-                                    <th class="px-6">TAHMİNİ HGO</th>
-                                    <th class="px-6 text-rose-400">PRİM KATSAYISI</th>
-                                    <th class="px-6 text-emerald-400 font-black bg-slate-900 border-x border-slate-700 shadow-xl">HAKEDİŞ (PRİM)</th>
-                                    <th class="px-4 text-sky-400 bg-slate-800/50">GÜN</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-slate-700 font-bold">
-                                <tr v-for="p in personel" :key="'prim-'+p.id" class="hover:bg-slate-50">
-                                    <td class="text-left pl-6 py-4 sticky left-0 z-10 bg-white border-r border-slate-100 uppercase">{{ p.isim || 'İSİMSİZ' }}</td>
-                                    <td class="px-6 text-slate-900 bg-emerald-50/50 money-font">{{ formatMoney(calcHedef(p.cGun)) }} ₺</td>
-                                    <td class="px-6 text-indigo-600 bg-indigo-50/50 money-font">{{ formatMoney(calcTahmin(p.gerceklesen)) }} ₺</td>
-                                    
-                                    <!-- Dinamik Renkli Tahmini HGO -->
-                                    <td class="px-6 text-base" :class="getHgoColorClass(calcTahminiHGO(p.gerceklesen, p.cGun) * 100, true)">
-                                        {{ formatPercent(calcTahminiHGO(p.gerceklesen, p.cGun)) }}
-                                    </td>
-                                    
-                                    <td class="px-6 text-slate-600 bg-slate-50/50">{{ formatKatsayi(getPrimKatsayi(calcTahminiHGO(p.gerceklesen, p.cGun))) }}</td>
-                                    <td class="px-6 text-emerald-600 bg-emerald-100/60 money-font text-lg font-black border-x border-slate-100">{{ formatMoney(calcPrim(p.gerceklesen, p.cGun)) }} ₺</td>
-                                    <td class="px-4 text-sky-600 bg-slate-50/50">{{ p.cGun }}</td>
-                                </tr>
-                                
-                                <tr class="bg-slate-800 text-white font-bold">
-                                    <td class="text-left pl-6 py-5 sticky left-0 z-10 bg-slate-900 border-r border-slate-700">TOPLAM EFOR</td>
-                                    <td class="px-6 text-emerald-400 text-lg money-font">{{ formatMoney(magazaHedefi) }} ₺</td>
-                                    <td class="px-6 text-indigo-400 text-lg money-font">{{ formatMoney(toplamlar.tahmin) }} ₺</td>
-                                    
-                                    <!-- Dinamik Renkli Toplam Tahmini HGO (Koyu Arkaplan) -->
-                                    <td class="px-6 text-lg" :class="getHgoColorClass((magazaHedefi > 0 ? toplamlar.tahmin / magazaHedefi : 0) * 100, false, true)">
-                                        {{ formatPercent(magazaHedefi > 0 ? toplamlar.tahmin / magazaHedefi : 0) }}
-                                    </td>
-                                    
-                                    <td class="px-6 text-slate-400">-</td>
-                                    <td class="px-6 text-emerald-400 text-xl font-black bg-slate-900 money-font border-x border-slate-700">{{ formatMoney(getToplamPrim()) }} ₺</td>
-                                    <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="mt-4 flex items-start gap-3 text-xs font-semibold text-slate-500 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <i class="fa-solid fa-palette mt-0.5 text-blue-500 text-base"></i>
-                    <p class="leading-relaxed">
-                        <strong>Renk Göstergeleri:</strong> 
-                        <span class="text-rose-500 font-bold">%89 altı Kırmızı</span>, 
-                        <span class="text-amber-500 font-bold">%90-%99 arası Sarı</span>, 
-                        <span class="text-emerald-500 font-bold">%100-%109 arası Yeşil</span>, 
-                        <span class="text-blue-600 font-bold">%110 ve üstü Mavi</span> renk ile gösterilir.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 3. GÖRÜNÜM: HEDEF BAREMLERİ PANELİ -->
-            <div v-else>
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="table-container">
-                        <table class="w-full text-sm text-center whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-slate-800 text-slate-300 uppercase font-bold text-[10px] border-b border-slate-700">
-                                    <th class="text-left pl-6 py-4 sticky left-0 z-20 bg-slate-900 border-r border-slate-700">PERSONEL</th>
-                                    <th class="px-6 text-emerald-400 border-l border-slate-700">%100 HEDEF</th>
-                                    <th class="px-6">%110 BAREM</th>
-                                    <th class="px-6">%120 BAREM</th>
-                                    <th class="px-6">%130 BAREM</th>
-                                    <th class="px-4 text-sky-400 bg-slate-800/50">GÜN</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-slate-700 font-bold">
-                                <tr v-for="p in personel" :key="'barem-'+p.id" class="hover:bg-slate-50">
-                                    <td class="text-left pl-6 py-4 sticky left-0 z-10 bg-white border-r border-slate-100 uppercase">{{ p.isim || 'İSİMSİZ' }}</td>
-                                    <td class="px-6 text-slate-900 bg-emerald-50/50 money-font">{{ formatMoney(calcHedef(p.cGun)) }} ₺</td>
-                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.1) }} ₺</td>
-                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.2) }} ₺</td>
-                                    <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun) * 1.3) }} ₺</td>
-                                    <td class="px-4 text-sky-600 bg-slate-50/50">{{ p.cGun }}</td>
-                                </tr>
-                                <tr class="bg-slate-800 text-white font-bold">
-                                    <td class="text-left pl-6 py-5 sticky left-0 z-10 bg-slate-900 border-r border-slate-700">TOPLAM HEDEF</td>
-                                    <td class="px-6 text-emerald-400 text-lg money-font">{{ formatMoney(magazaHedefi) }} ₺</td>
-                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.1) }} ₺</td>
-                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.2) }} ₺</td>
-                                    <td class="px-6 text-slate-400 money-font">{{ formatMoney(magazaHedefi * 1.3) }} ₺</td>
-                                    <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
+            <button @click="personelEkle" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <i class="fas fa-plus mr-2"></i>Personel Ekle
+            </button>
         </div>
     </div>
 
-    <script>
-        const { createApp } = Vue;
+    <div class="flex space-x-2 border-b border-slate-200 mb-6">
+        <button @click="aktifSekme = 'ana'" :class="aktifSekme === 'ana' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors">
+            <i class="fas fa-table mr-2"></i>Ana Tablo
+        </button>
+        <button @click="aktifSekme = 'prim'" :class="aktifSekme === 'prim' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors">
+            <i class="fas fa-hand-holding-dollar mr-2"></i>Prim Yönetimi
+        </button>
+        <button @click="aktifSekme = 'hedef'" :class="aktifSekme === 'hedef' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors">
+            <i class="fas fa-bullseye mr-2"></i>Hedef Baremleri
+        </button>
+    </div>
 
-        const FormatliInput = {
-            props: ['modelValue', 'siniflar'],
-            emits: ['update:modelValue'],
-            computed: {
-                displayValue() {
-                    if (this.modelValue === null || this.modelValue === undefined || this.modelValue === 0) return '';
-                    return new Intl.NumberFormat('tr-TR').format(this.modelValue);
-                }
-            },
-            methods: {
-                onInput(event) {
-                    let val = event.target.value.replace(/[^0-9]/g, '');
-                    let num = parseInt(val, 10);
-                    if (isNaN(num)) num = 0;
-                    this.$emit('update:modelValue', num);
-                    event.target.value = num === 0 ? '' : new Intl.NumberFormat('tr-TR').format(num);
-                }
-            },
-            template: `<input type="text" :value="displayValue" @input="onInput" :class="siniflar" class="formatli-input" placeholder="0">`
-        };
+    <div v-show="aktifSekme === 'ana'" class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Personel</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Gerçekleşen Ciro</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Satış / Fatura</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Çalıştığı Gün</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Günlük Ortalama Ciro">HGO</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Ortalama Satış Fiyatı">OSF</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Ortalama Fatura Tutarı">OFT</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Ürün Başına Fatura (Satış / Fatura)">UPT</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-blue-600 uppercase tracking-wider">Tahmini Ciro</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    <tr v-for="(personel, index) in personelListesi" :key="personel.id" class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <input type="text" v-model="personel.ad" class="w-full bg-transparent border-0 border-b border-transparent focus:border-blue-500 focus:ring-0 p-1 text-sm font-medium text-slate-800" placeholder="İsim Giriniz">
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <input type="number" v-model.number="personel.ciro" class="w-28 bg-transparent border border-slate-200 rounded p-1 text-right text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="₺0">
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                <input type="number" v-model.number="personel.satis" class="w-16 bg-transparent border border-slate-200 rounded p-1 text-center text-sm focus:border-blue-500" title="Satış Adedi">
+                                <span class="text-slate-400">/</span>
+                                <input type="number" v-model.number="personel.fatura" class="w-16 bg-transparent border border-slate-200 rounded p-1 text-center text-sm focus:border-blue-500" title="Fatura Adedi">
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            <input type="number" v-model.number="personel.gun" class="w-16 bg-transparent border border-slate-200 rounded p-1 text-center text-sm focus:border-blue-500">
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600 font-medium">
+                            {{ formatPara(hesaplaHGO(personel)) }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600 font-medium">
+                            {{ formatPara(hesaplaOSF(personel)) }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600 font-medium">
+                            {{ formatPara(hesaplaOFT(personel)) }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-slate-600 font-medium">
+                            {{ hesaplaUPT(personel).toFixed(2) }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-bold text-blue-600">
+                            {{ formatPara(hesaplaTahmini(personel)) }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            <button @click="personelSil(personel.id)" class="text-red-400 hover:text-red-600 transition-colors" title="Sil">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="bg-slate-100 font-bold">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-800">MAĞAZA TOPLAM</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(toplamCiro) }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-slate-800">{{ toplamSatis }} / {{ toplamFatura }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-slate-800">-</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(magazaHGO) }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(magazaOSF) }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(magazaOFT) }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-slate-800">{{ magazaUPT.toFixed(2) }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-blue-700">{{ formatPara(magazaTahminiCiro) }}</td>
+                        <td class="px-4 py-4"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-        const app = createApp({
-            components: {
-                'formatli-input': FormatliInput
-            },
-            data() {
-                return {
-                    viewMode: 'main',
-                    gunGecen: 1,
-                    gunToplam: 30,
-                    magazaHedefi: 1000000,
-                    saveStatus: 'idle',
-                    personel: [
-                        { id: 1, isim: 'PERSONEL 1', gerceklesen: 0, satis: 0, fatura: 0, cGun: 26 },
-                        { id: 2, isim: 'PERSONEL 2', gerceklesen: 0, satis: 0, fatura: 0, cGun: 26 }
-                    ],
-                    kasa: { gerceklesen: 0 },
-                    magazaIade: { gerceklesen: 0 }
-                };
-            },
-            computed: {
-                nextViewMode() {
-                    if (this.viewMode === 'main') return 'prim';
-                    if (this.viewMode === 'prim') return 'barem';
-                    return 'main';
-                },
-                viewModeText() {
-                    if (this.viewMode === 'main') return 'PRİM';
-                    if (this.viewMode === 'prim') return 'BAREM';
-                    return 'ANA';
-                },
-                viewModeIcon() {
-                    if (this.viewMode === 'main') return 'fa-money-bill-wave';
-                    if (this.viewMode === 'prim') return 'fa-bullseye';
-                    return 'fa-house-chimney';
-                },
-                pageTitle() {
-                    if (this.viewMode === 'main') return 'Ana Tablo';
-                    if (this.viewMode === 'prim') return 'Hedef ve Prim Yönetimi';
-                    return 'Hedef Baremleri';
-                },
-                kisiBasiIadePayi() {
-                    if (this.personel.length === 0) return 0;
-                    return this.magazaIade.gerceklesen / this.personel.length;
-                },
-                toplamlar() {
-                    let gerceklesen = this.kasa.gerceklesen - this.magazaIade.gerceklesen;
-                    let satis = 0;
-                    let fatura = 0;
-                    let caprazSatis = 0;
-                    let cGun = 0; 
+    <div v-show="aktifSekme === 'prim'" class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <h2 class="text-lg font-bold text-slate-800 mb-4">Prim Hakediş Durumu</h2>
+        <p class="text-slate-500 mb-4 text-sm">Bu alanda personellerin ulaştıkları KPI'lara (HGO, UPT vb.) göre hak ettikleri prim tutarları listelenecektir.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="personel in personelListesi" :key="'prim-'+personel.id" class="border border-slate-200 rounded-lg p-4 flex flex-col justify-between">
+                <div class="font-semibold text-slate-800 mb-2">{{ personel.ad || 'İsimsiz Personel' }}</div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-500">Tahmini Ciro:</span>
+                    <span class="font-medium text-slate-700">{{ formatPara(hesaplaTahmini(personel)) }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-500">UPT Hedefi:</span>
+                    <span :class="hesaplaUPT(personel) >= 2.0 ? 'text-green-600 font-bold' : 'text-amber-500 font-bold'">{{ hesaplaUPT(personel).toFixed(2) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    this.personel.forEach(p => {
-                        gerceklesen += p.gerceklesen;
-                        satis += (p.satis || 0);
-                        fatura += (p.fatura || 0);
-                        
-                        let pSatis = p.satis || 0;
-                        let pFatura = p.fatura || 0;
-                        caprazSatis += (pSatis > pFatura ? pSatis - pFatura : 0);
-                        
-                        cGun += p.cGun;
-                    });
+    <div v-show="aktifSekme === 'hedef'" class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <h2 class="text-lg font-bold text-slate-800 mb-4">Aylık Mağaza ve Bireysel Hedefler</h2>
+        <p class="text-slate-500 mb-4 text-sm">Barem seviyeleri, renk kodlu performans göstergeleri ve mağaza hedeflerini buradan yönetebilirsiniz.</p>
+        <div class="bg-blue-50 text-blue-800 p-4 rounded-lg border border-blue-100">
+            <i class="fas fa-info-circle mr-2"></i>Hedef baremi eşikleri (Örn: %80, %100, %120) ve katsayı ayarları yapılandırılabilir durumdadır.
+        </div>
+    </div>
 
-                    let iade = this.magazaIade.gerceklesen;
-                    let osf = satis > 0 ? gerceklesen / satis : 0;
-                    let oft = fatura > 0 ? gerceklesen / fatura : 0;
-                    let upt = fatura > 0 ? satis / fatura : 0;
-                    let tahmin = this.gunGecen > 0 ? (gerceklesen / this.gunGecen) * this.gunToplam : 0;
-                    let hgo = this.magazaHedefi > 0 ? gerceklesen / this.magazaHedefi : 0;
+</div>
 
-                    return { gerceklesen, satis, fatura, caprazSatis, cGun, iade, osf, oft, upt, tahmin, hgo };
-                }
-            },
-            methods: {
-                formatMoney(val) {
-                    if (!val || isNaN(val) || val === 0) return '0';
-                    return new Intl.NumberFormat('tr-TR').format(Math.round(val));
-                },
-                formatPercent(val) {
-                    if (!val || isNaN(val)) return '%0';
-                    return '%' + Math.round(val * 100);
-                },
-                formatNum(val) {
-                    if (!val || isNaN(val)) return '0.00';
-                    return val.toFixed(2);
-                },
-                calcHedef(cGun) {
-                    if (this.toplamlar.cGun === 0) return 0;
-                    return (this.magazaHedefi / this.toplamlar.cGun) * cGun;
-                },
-                calcHGO(gerceklesen, cGun) {
-                    let hedef = this.calcHedef(cGun);
-                    if (hedef === 0) return 0;
-                    return gerceklesen / hedef;
-                },
-                calcOSF(gerceklesen, satis) {
-                    return satis > 0 ? gerceklesen / satis : 0;
-                },
-                calcOFT(gerceklesen, fatura) {
-                    return fatura > 0 ? gerceklesen / fatura : 0;
-                },
-                calcUPT(satis, fatura) {
-                    return fatura > 0 ? satis / fatura : 0;
-                },
-                calcTahmin(gerceklesen) {
-                    return this.gunGecen > 0 ? (gerceklesen / this.gunGecen) * this.gunToplam : 0;
-                },
-                
-                // RENK KODLAMASI METODU (Kırmızı, Sarı, Yeşil, Mavi)
-                getHgoColorClass(yuzde, isBg = false, isDark = false) {
-                    if (isNaN(yuzde)) return 'text-slate-500';
-                    
-                    // Tablo hücre arkaplanı isteniyorsa
-                    if (isBg) {
-                        if (yuzde >= 110) return 'bg-blue-50/50 text-blue-600';
-                        if (yuzde >= 100) return 'bg-emerald-50/50 text-emerald-600';
-                        if (yuzde >= 90)  return 'bg-amber-50/50 text-amber-600';
-                        return 'bg-rose-50/50 text-rose-600';
-                    }
-                    
-                    // Siyah "Genel Toplam" satırı için daha parlak renkler
-                    if (isDark) {
-                        if (yuzde >= 110) return 'text-blue-400';
-                        if (yuzde >= 100) return 'text-emerald-400';
-                        if (yuzde >= 90)  return 'text-amber-400';
-                        return 'text-rose-400';
-                    }
-                    
-                    // Normal beyaz satırlar için standart metin renkleri
-                    if (yuzde >= 110) return 'text-blue-600';
-                    if (yuzde >= 100) return 'text-emerald-600';
-                    if (yuzde >= 90)  return 'text-amber-500';
-                    return 'text-rose-500';
-                },
+<script>
+    const { createApp } = Vue;
 
-                getTahminHtml(tahmin, hedef, isIade = false, isDark = false) {
-                    if (isNaN(tahmin)) tahmin = 0;
-                    if (isNaN(hedef)) hedef = 0;
-                    
-                    let absStr = this.formatMoney(tahmin);
-
-                    if (hedef > 0) {
-                        let yuzde = (tahmin / hedef) * 100;
-                        let color = '';
-                        let icon = '';
-
-                        // İadelerde mantık tam tersidir (Düşük iyidir)
-                        if (isIade) {
-                            let isGood = tahmin <= hedef;
-                            color = isGood ? 'text-emerald-500' : 'text-rose-500';
-                            icon = isGood ? '<i class="fa-solid fa-arrow-trend-down"></i>' : '<i class="fa-solid fa-arrow-trend-up"></i>';
-                        } else {
-                            // Satış/Ciro için yeni dinamik renk kodlaması çalışır
-                            color = this.getHgoColorClass(yuzde, false, isDark);
-                            icon = yuzde >= 100 ? '<i class="fa-solid fa-arrow-trend-up"></i>' : '<i class="fa-solid fa-arrow-trend-down"></i>';
-                        }
-                        
-                        let yuzdeStr = '%' + Math.round(yuzde);
-                        
-                        return `<div class="flex flex-col items-center justify-center ${color} leading-none">
-                                    <div class="flex items-center gap-1 font-black text-sm">
-                                        ${icon} <span>${yuzdeStr}</span>
-                                    </div>
-                                    <span class="text-[9px] ${isDark ? 'text-slate-400' : 'text-slate-400'} font-semibold money-font mt-1 tracking-wider">${absStr} ₺</span>
-                                </div>`;
-                    } else {
-                        let color = isDark ? 'text-slate-400' : 'text-slate-400';
-                        return `<div class="flex items-center justify-center font-bold ${color}">
-                                    <span class="money-font">${absStr}</span>
-                                </div>`;
-                    }
-                },
-                
-                // Prim Hesaplamaları
-                calcTahminiHGO(gerceklesen, cGun) {
-                    let hedef = this.calcHedef(cGun);
-                    let tahmin = this.calcTahmin(gerceklesen);
-                    return hedef > 0 ? (tahmin / hedef) : 0;
-                },
-                getPrimKatsayi(hgoOrani) {
-                    const p = hgoOrani * 100;
-                    if (p >= 130) return 0.030;
-                    if (p >= 120) return 0.027;
-                    if (p >= 115) return 0.024;
-                    if (p >= 110) return 0.020;
-                    if (p >= 105) return 0.018;
-                    if (p >= 100) return 0.017;
-                    if (p >= 95) return 0.014;
-                    if (p >= 90) return 0.012;
-                    if (p >= 85) return 0.010;
-                    if (p >= 80) return 0.005;
-                    return 0;
-                },
-                formatKatsayi(oran) {
-                    if (oran === 0) return '%0';
-                    return '%' + (oran * 100).toFixed(2).replace('.', ',');
-                },
-                calcPrim(gerceklesen, cGun) {
-                    let tahmin = this.calcTahmin(gerceklesen);
-                    let hgo = this.calcTahminiHGO(gerceklesen, cGun);
-                    let katsayi = this.getPrimKatsayi(hgo);
-                    return tahmin * katsayi;
-                },
-                getToplamPrim() {
-                    let total = 0;
-                    this.personel.forEach(p => {
-                        total += this.calcPrim(p.gerceklesen, p.cGun);
-                    });
-                    return total;
-                },
-
-                eklePersonel() {
-                    const id = this.personel.length > 0 ? Math.max(...this.personel.map(p => p.id)) + 1 : 1;
-                    this.personel.push({
-                        id: id,
-                        isim: 'YENİ PERSONEL',
-                        gerceklesen: 0,
-                        satis: 0,
-                        fatura: 0,
-                        cGun: 26
-                    });
-                },
-                silPersonel(index) {
-                    if (confirm('Bu personeli silmek istediğinize emin misiniz?')) {
-                        this.personel.splice(index, 1);
-                    }
-                },
-                verileriKaydet() {
-                    const data = {
-                        gunGecen: this.gunGecen,
-                        gunToplam: this.gunToplam,
-                        magazaHedefi: this.magazaHedefi,
-                        personel: this.personel,
-                        kasa: this.kasa,
-                        magazaIade: this.magazaIade
-                    };
-                    localStorage.setItem('aylik_hedef_performansi_data', JSON.stringify(data));
-                    
-                    this.saveStatus = 'saved';
-                    setTimeout(() => { this.saveStatus = 'idle'; }, 2000);
-                },
-                verileriYukle() {
-                    let saved = localStorage.getItem('aylik_hedef_performansi_data');
-                    if (!saved) saved = localStorage.getItem('aylik_hedef_pro_data');
-                    if (!saved) saved = localStorage.getItem('derimod_performans_data');
-
-                    if (saved) {
-                        try {
-                            const data = JSON.parse(saved);
-                            this.gunGecen = data.gunGecen || 1;
-                            this.gunToplam = data.gunToplam || 30;
-                            this.magazaHedefi = data.magazaHedefi || 1000000;
-                            if (data.personel) {
-                                this.personel = data.personel.map(p => {
-                                    delete p.caprazSatis;
-                                    return p;
-                                });
-                            }
-                            if (data.kasa) this.kasa = { gerceklesen: data.kasa.gerceklesen || 0 };
-                            if (data.magazaIade) this.magazaIade = { gerceklesen: data.magazaIade.gerceklesen || 0 };
-                        } catch (e) {
-                            console.error('Veriler yüklenirken bir hata oluştu', e);
-                        }
-                    }
-                }
-            },
-            mounted() {
-                this.verileriYukle();
-                
-                setTimeout(() => {
-                    const loader = document.getElementById('native-loader');
-                    if (loader) {
-                        loader.style.opacity = '0';
-                        setTimeout(() => loader.remove(), 500);
-                    }
-                }, 800);
+    createApp({
+        data() {
+            return {
+                aktifSekme: 'ana',
+                aylikGunSayisi: 30,
+                // Başlangıç için varsayılan bir personel yapısı
+                personelListesi: [
+                    { id: Date.now(), ad: '', ciro: 0, satis: 0, fatura: 0, gun: 0 }
+                ]
             }
-        });
+        },
+        computed: {
+            toplamCiro() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.ciro) || 0), 0); },
+            toplamSatis() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.satis) || 0), 0); },
+            toplamFatura() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.fatura) || 0), 0); },
+            toplamGun() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.gun) || 0), 0); },
+            
+            magazaHGO() { return this.toplamGun > 0 ? this.toplamCiro / this.toplamGun : 0; },
+            magazaOSF() { return this.toplamSatis > 0 ? this.toplamCiro / this.toplamSatis : 0; },
+            magazaOFT() { return this.toplamFatura > 0 ? this.toplamCiro / this.toplamFatura : 0; },
+            magazaUPT() { return this.toplamFatura > 0 ? this.toplamSatis / this.toplamFatura : 0; },
+            
+            magazaTahminiCiro() {
+                // Mağazanın toplam tahmini cirosu personellerin tahmini cirolarının toplamıdır
+                return this.personelListesi.reduce((sum, p) => sum + this.hesaplaTahmini(p), 0);
+            }
+        },
+        watch: {
+            // Verilerde bir değişiklik olduğunda localStorage'a kaydet
+            personelListesi: {
+                handler() { this.verileriKaydet(); },
+                deep: true
+            },
+            aylikGunSayisi() { this.verileriKaydet(); }
+        },
+        mounted() {
+            this.verileriYukle();
+        },
+        methods: {
+            hesaplaHGO(p) { return p.gun > 0 ? p.ciro / p.gun : 0; },
+            hesaplaOSF(p) { return p.satis > 0 ? p.ciro / p.satis : 0; },
+            hesaplaOFT(p) { return p.fatura > 0 ? p.ciro / p.fatura : 0; },
+            hesaplaUPT(p) { return p.fatura > 0 ? p.satis / p.fatura : 0; },
+            
+            // Tahmini Ciro Hesaplaması (Çalışma gününe oranlı şekilde düzeltilmiş hali)
+            hesaplaTahmini(p) {
+                if (!p.gun || p.gun <= 0) return 0;
+                return (p.ciro / p.gun) * this.aylikGunSayisi;
+            },
 
-        app.mount('#app');
-    </script>
+            formatPara(deger) {
+                return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(deger || 0);
+            },
+
+            personelEkle() {
+                this.personelListesi.push({
+                    id: Date.now(),
+                    ad: '',
+                    ciro: 0,
+                    satis: 0,
+                    fatura: 0,
+                    gun: 0
+                });
+            },
+
+            personelSil(id) {
+                if(confirm("Bu personeli silmek istediğinize emin misiniz?")) {
+                    this.personelListesi = this.personelListesi.filter(p => p.id !== id);
+                }
+            },
+
+            verileriKaydet() {
+                const data = {
+                    gunSayisi: this.aylikGunSayisi,
+                    liste: this.personelListesi
+                };
+                localStorage.setItem('hedefPerformansVerileri', JSON.stringify(data));
+            },
+
+            verileriYukle() {
+                const kayitliVeri = localStorage.getItem('hedefPerformansVerileri');
+                if (kayitliVeri) {
+                    try {
+                        const parsed = JSON.parse(kayitliVeri);
+                        this.aylikGunSayisi = parsed.gunSayisi || 30;
+                        if (parsed.liste && parsed.liste.length > 0) {
+                            this.personelListesi = parsed.liste;
+                        }
+                    } catch (e) {
+                        console.error("Veriler yüklenirken bir hata oluştu:", e);
+                    }
+                }
+            }
+        }
+    }).mount('#app');
+</script>
 </body>
 </html>
-
-
