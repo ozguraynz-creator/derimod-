@@ -1,243 +1,111 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aylık Hedef Performansı</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+                },
+                gunlukBirimHedef() {
+                    return this.toplamCalismaGunu > 0 ? (Number(this.magazaHedefi) || 0) / this.toplamCalismaGunu : 0;
+                },
+                kisiBasiIadePayi() {
+                    return this.personel.length > 0 ? Math.abs(Number(this.magazaIade.gerceklesen) || 0) / this.personel.length : 0;
+                },
+                toplamlar() {
+                    let cGun = 0, gerceklesen = 0, satis = 0, fatura = 0;
+                    this.personel.forEach(p => {
+                        cGun += (Number(p.cGun) || 0);
+                        gerceklesen += (Number(p.gerceklesen) || 0);
+                        satis += (Number(p.satis) || 0);
+                        fatura += (Number(p.fatura) || 0);
+                    });
+                    gerceklesen += (Number(this.kasa.gerceklesen) || 0) + (Number(this.magazaIade.gerceklesen) || 0);
+                    cGun += (Number(this.kasa.cGun) || 0) + (Number(this.magazaIade.cGun) || 0);
 
-<div id="app" class="max-w-7xl mx-auto p-4 md:p-6">
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-800">Aylık Hedef Performansı</h1>
-            <p class="text-sm text-slate-500">Performans Paneli ve Prim Yönetimi</p>
-        </div>
-        <div class="mt-4 md:mt-0 flex items-center gap-4">
-            <div class="flex items-center gap-2">
-                <label class="text-sm font-medium text-slate-600">Aydaki Toplam Gün:</label>
-                <input type="number" v-model.number="aylikGunSayisi" class="w-20 border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-1 border text-center">
-            </div>
-            <button @click="personelEkle" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
-                <i class="fas fa-plus mr-2"></i>Personel Ekle
-            </button>
-        </div>
-    </div>
+                    let hgo = this.magazaHedefi > 0 ? (gerceklesen / this.magazaHedefi) * 100 : 0;
+                    let osf = satis > 0 ? gerceklesen / satis : 0;
+                    let oft = fatura > 0 ? gerceklesen / fatura : 0;
+                    let upt = fatura > 0 ? satis / fatura : 0;
+                    let tahmin = this.gunGecen > 0 ? ((gerceklesen / this.gunGecen) * this.gunToplam) / this.magazaHedefi * 100 : 0;
 
-    <div class="flex space-x-2 border-b border-slate-200 mb-6">
-        <button @click="aktifSekme = 'ana'" :class="aktifSekme === 'ana' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors">
-            <i class="fas fa-table mr-2"></i>Ana Tablo
-        </button>
-        <button @click="aktifSekme = 'prim'" :class="aktifSekme === 'prim' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors">
-            <i class="fas fa-hand-holding-dollar mr-2"></i>Prim Yönetimi
-        </button>
-        <button @click="aktifSekme = 'hedef'" :class="aktifSekme === 'hedef' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'" class="whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors">
-            <i class="fas fa-bullseye mr-2"></i>Hedef Baremleri
-        </button>
-    </div>
-
-    <div v-show="aktifSekme === 'ana'" class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Personel</th>
-                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Gerçekleşen Ciro</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Satış / Fatura</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Çalıştığı Gün</th>
-                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Günlük Ortalama Ciro">HGO</th>
-                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Ortalama Satış Fiyatı">OSF</th>
-                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Ortalama Fatura Tutarı">OFT</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider" title="Ürün Başına Fatura (Satış / Fatura)">UPT</th>
-                        <th class="px-4 py-3 text-right text-xs font-semibold text-blue-600 uppercase tracking-wider">Tahmini Ciro</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">İşlem</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-200">
-                    <tr v-for="(personel, index) in personelListesi" :key="personel.id" class="hover:bg-slate-50 transition-colors">
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <input type="text" v-model="personel.ad" class="w-full bg-transparent border-0 border-b border-transparent focus:border-blue-500 focus:ring-0 p-1 text-sm font-medium text-slate-800" placeholder="İsim Giriniz">
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <input type="number" v-model.number="personel.ciro" class="w-28 bg-transparent border border-slate-200 rounded p-1 text-right text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="₺0">
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-center">
-                            <div class="flex items-center justify-center gap-1">
-                                <input type="number" v-model.number="personel.satis" class="w-16 bg-transparent border border-slate-200 rounded p-1 text-center text-sm focus:border-blue-500" title="Satış Adedi">
-                                <span class="text-slate-400">/</span>
-                                <input type="number" v-model.number="personel.fatura" class="w-16 bg-transparent border border-slate-200 rounded p-1 text-center text-sm focus:border-blue-500" title="Fatura Adedi">
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-center">
-                            <input type="number" v-model.number="personel.gun" class="w-16 bg-transparent border border-slate-200 rounded p-1 text-center text-sm focus:border-blue-500">
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600 font-medium">
-                            {{ formatPara(hesaplaHGO(personel)) }}
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600 font-medium">
-                            {{ formatPara(hesaplaOSF(personel)) }}
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600 font-medium">
-                            {{ formatPara(hesaplaOFT(personel)) }}
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-slate-600 font-medium">
-                            {{ hesaplaUPT(personel).toFixed(2) }}
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-bold text-blue-600">
-                            {{ formatPara(hesaplaTahmini(personel)) }}
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-center">
-                            <button @click="personelSil(personel.id)" class="text-red-400 hover:text-red-600 transition-colors" title="Sil">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="bg-slate-100 font-bold">
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-800">MAĞAZA TOPLAM</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(toplamCiro) }}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-slate-800">{{ toplamSatis }} / {{ toplamFatura }}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-slate-800">-</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(magazaHGO) }}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(magazaOSF) }}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-slate-800">{{ formatPara(magazaOFT) }}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm text-slate-800">{{ magazaUPT.toFixed(2) }}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-blue-700">{{ formatPara(magazaTahminiCiro) }}</td>
-                        <td class="px-4 py-4"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div v-show="aktifSekme === 'prim'" class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h2 class="text-lg font-bold text-slate-800 mb-4">Prim Hakediş Durumu</h2>
-        <p class="text-slate-500 mb-4 text-sm">Bu alanda personellerin ulaştıkları KPI'lara (HGO, UPT vb.) göre hak ettikleri prim tutarları listelenecektir.</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div v-for="personel in personelListesi" :key="'prim-'+personel.id" class="border border-slate-200 rounded-lg p-4 flex flex-col justify-between">
-                <div class="font-semibold text-slate-800 mb-2">{{ personel.ad || 'İsimsiz Personel' }}</div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-slate-500">Tahmini Ciro:</span>
-                    <span class="font-medium text-slate-700">{{ formatPara(hesaplaTahmini(personel)) }}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-slate-500">UPT Hedefi:</span>
-                    <span :class="hesaplaUPT(personel) >= 2.0 ? 'text-green-600 font-bold' : 'text-amber-500 font-bold'">{{ hesaplaUPT(personel).toFixed(2) }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div v-show="aktifSekme === 'hedef'" class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h2 class="text-lg font-bold text-slate-800 mb-4">Aylık Mağaza ve Bireysel Hedefler</h2>
-        <p class="text-slate-500 mb-4 text-sm">Barem seviyeleri, renk kodlu performans göstergeleri ve mağaza hedeflerini buradan yönetebilirsiniz.</p>
-        <div class="bg-blue-50 text-blue-800 p-4 rounded-lg border border-blue-100">
-            <i class="fas fa-info-circle mr-2"></i>Hedef baremi eşikleri (Örn: %80, %100, %120) ve katsayı ayarları yapılandırılabilir durumdadır.
-        </div>
-    </div>
-
-</div>
-
-<script>
-    const { createApp } = Vue;
-
-    createApp({
-        data() {
-            return {
-                aktifSekme: 'ana',
-                aylikGunSayisi: 30,
-                // Başlangıç için varsayılan bir personel yapısı
-                personelListesi: [
-                    { id: Date.now(), ad: '', ciro: 0, satis: 0, fatura: 0, gun: 0 }
-                ]
-            }
-        },
-        computed: {
-            toplamCiro() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.ciro) || 0), 0); },
-            toplamSatis() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.satis) || 0), 0); },
-            toplamFatura() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.fatura) || 0), 0); },
-            toplamGun() { return this.personelListesi.reduce((sum, p) => sum + (Number(p.gun) || 0), 0); },
-            
-            magazaHGO() { return this.toplamGun > 0 ? this.toplamCiro / this.toplamGun : 0; },
-            magazaOSF() { return this.toplamSatis > 0 ? this.toplamCiro / this.toplamSatis : 0; },
-            magazaOFT() { return this.toplamFatura > 0 ? this.toplamCiro / this.toplamFatura : 0; },
-            magazaUPT() { return this.toplamFatura > 0 ? this.toplamSatis / this.toplamFatura : 0; },
-            
-            magazaTahminiCiro() {
-                // Mağazanın toplam tahmini cirosu personellerin tahmini cirolarının toplamıdır
-                return this.personelListesi.reduce((sum, p) => sum + this.hesaplaTahmini(p), 0);
-            }
-        },
-        watch: {
-            // Verilerde bir değişiklik olduğunda localStorage'a kaydet
-            personelListesi: {
-                handler() { this.verileriKaydet(); },
-                deep: true
-            },
-            aylikGunSayisi() { this.verileriKaydet(); }
-        },
-        mounted() {
-            this.verileriYukle();
-        },
-        methods: {
-            hesaplaHGO(p) { return p.gun > 0 ? p.ciro / p.gun : 0; },
-            hesaplaOSF(p) { return p.satis > 0 ? p.ciro / p.satis : 0; },
-            hesaplaOFT(p) { return p.fatura > 0 ? p.ciro / p.fatura : 0; },
-            hesaplaUPT(p) { return p.fatura > 0 ? p.satis / p.fatura : 0; },
-            
-            // Tahmini Ciro Hesaplaması (Çalışma gününe oranlı şekilde düzeltilmiş hali)
-            hesaplaTahmini(p) {
-                if (!p.gun || p.gun <= 0) return 0;
-                return (p.ciro / p.gun) * this.aylikGunSayisi;
-            },
-
-            formatPara(deger) {
-                return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(deger || 0);
-            },
-
-            personelEkle() {
-                this.personelListesi.push({
-                    id: Date.now(),
-                    ad: '',
-                    ciro: 0,
-                    satis: 0,
-                    fatura: 0,
-                    gun: 0
-                });
-            },
-
-            personelSil(id) {
-                if(confirm("Bu personeli silmek istediğinize emin misiniz?")) {
-                    this.personelListesi = this.personelListesi.filter(p => p.id !== id);
+                    return { cGun, gerceklesen, hgo, osf, oft, satis, fatura, upt, iade: Math.abs(Number(this.magazaIade.gerceklesen) || 0), tahmin };
                 }
             },
-
-            verileriKaydet() {
-                const data = {
-                    gunSayisi: this.aylikGunSayisi,
-                    liste: this.personelListesi
-                };
-                localStorage.setItem('hedefPerformansVerileri', JSON.stringify(data));
+            mounted() {
+                this.verileriYukle();
+                setTimeout(() => {
+                    document.getElementById('native-loader').style.display = 'none';
+                    document.getElementById('app').style.display = 'block';
+                }, 800);
             },
-
-            verileriYukle() {
-                const kayitliVeri = localStorage.getItem('hedefPerformansVerileri');
-                if (kayitliVeri) {
+            methods: {
+                verileriKaydet() {
                     try {
-                        const parsed = JSON.parse(kayitliVeri);
-                        this.aylikGunSayisi = parsed.gunSayisi || 30;
-                        if (parsed.liste && parsed.liste.length > 0) {
-                            this.personelListesi = parsed.liste;
-                        }
-                    } catch (e) {
-                        console.error("Veriler yüklenirken bir hata oluştu:", e);
+                        const veri = {
+                            magazaHedefi: this.magazaHedefi,
+                            gunGecen: this.gunGecen,
+                            gunToplam: this.gunToplam,
+                            personel: JSON.parse(JSON.stringify(this.personel)),
+                            kasa: JSON.parse(JSON.stringify(this.kasa)),
+                            magazaIade: JSON.parse(JSON.stringify(this.magazaIade))
+                        };
+                        localStorage.setItem('derimod_system_v7', JSON.stringify(veri));
+                        this.saveStatus = 'saved';
+                        setTimeout(() => { this.saveStatus = 'idle'; }, 2000);
+                    } catch (error) { console.error(error); }
+                },
+                verileriYukle() {
+                    const kayitli = localStorage.getItem('derimod_system_v7');
+                    if (kayitli) {
+                        const d = JSON.parse(kayitli);
+                        Object.assign(this, d);
                     }
-                }
+                },
+                calcHedef(cGun) { return this.gunlukBirimHedef * (Number(cGun) || 0); },
+                calcHGO(gerceklesen, cGun) {
+                    const h = this.calcHedef(cGun);
+                    return h > 0 ? ((Number(gerceklesen) || 0) / h) * 100 : 0;
+                },
+                calcTahmin(gerceklesen, cGun) {
+                    const h = this.calcHedef(cGun);
+                    return (this.gunGecen > 0 && h > 0) ? (((Number(gerceklesen) || 0) / this.gunGecen) * this.gunToplam) / h * 100 : 0;
+                },
+                calcOSF(gerceklesen, satis) { return Number(satis) > 0 ? (Number(gerceklesen) || 0) / Number(satis) : 0; },
+                calcOFT(gerceklesen, fatura) { return Number(fatura) > 0 ? (Number(gerceklesen) || 0) / Number(fatura) : 0; },
+                calcUPT(satis, fatura) { return Number(fatura) > 0 ? (Number(satis) || 0) / Number(fatura) : 0; },
+                
+                formatMoney(value) { return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0); },
+                formatNum(value) { return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0); },
+                formatPercent(value, decimals = 2) { return '%' + new Intl.NumberFormat('tr-TR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(Number(value) || 0); },
+                
+                getHgoHtml(hgo) {
+                    const color = hgo >= 100 ? 'text-emerald-600' : hgo >= 80 ? 'text-indigo-600' : 'text-rose-500';
+                    return `<span class="${color} font-black text-sm tracking-tighter">${this.formatPercent(hgo)}</span>`;
+                },
+
+                getTahminHtml(tahmin, isDark = false) {
+                    let colorClass = '';
+                    let iconClass = '';
+
+                    if (tahmin >= 120) {
+                        colorClass = isDark ? 'text-blue-400' : 'text-blue-500';
+                        iconClass = 'fa-solid fa-arrow-up';
+                    } else if (tahmin >= 100) {
+                        colorClass = isDark ? 'text-emerald-400' : 'text-emerald-500';
+                        iconClass = 'fa-solid fa-arrow-up';
+                    } else if (tahmin >= 90) {
+                        colorClass = isDark ? 'text-amber-400' : 'text-amber-500';
+                        iconClass = 'fa-solid fa-arrow-right -rotate-45';
+                    } else {
+                        colorClass = isDark ? 'text-rose-400' : 'text-rose-500';
+                        iconClass = 'fa-solid fa-arrow-down';
+                    }
+
+                    return `<div class="flex items-center justify-center gap-1.5 font-black ${colorClass} text-sm">
+                                <i class="${iconClass}"></i>
+                                <span>${this.formatPercent(tahmin, 0)}</span>
+                            </div>`;
+                },
+
+                eklePersonel() { this.personel.push({ id: Date.now(), isim: 'YENİ PERSONEL', cGun: 26, gerceklesen: 0, satis: 0, fatura: 0 }); },
+                silPersonel(index) { if(confirm('Bu personeli silmek istediğinize emin misiniz?')) this.personel.splice(index, 1); }
             }
-        }
-    }).mount('#app');
-</script>
+        });
+        app.mount('#app');
+    </script>
 </body>
 </html>
