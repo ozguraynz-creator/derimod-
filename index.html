@@ -2,18 +2,54 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Derimod Performans Sistemi</title>
+    
+    <!-- MOBİL UYGULAMA İKON VE PWA AYARLARI -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Derimod">
+    <meta name="application-name" content="Derimod">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1e293b">
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23dc2626'/%3E%3Crect x='100' y='280' width='80' height='140' rx='16' fill='%233b82f6'/%3E%3Crect x='216' y='180' width='80' height='240' rx='16' fill='%233b82f6'/%3E%3Crect x='332' y='92' width='80' height='328' rx='16' fill='%233b82f6'/%3E%3C/svg%3E" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23dc2626'/%3E%3Crect x='100' y='280' width='80' height='140' rx='16' fill='%233b82f6'/%3E%3Crect x='216' y='180' width='80' height='240' rx='16' fill='%233b82f6'/%3E%3Crect x='332' y='92' width='80' height='328' rx='16' fill='%233b82f6'/%3E%3C/svg%3E">
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Derimod%20Performans%22%2C%22short_name%22%3A%22Derimod%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%231e293b%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%253E%253Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27112%27%20fill%3D%27%2523dc2626%27%2F%253E%253Crect%20x%3D%27100%27%20y%3D%27280%27%20width%3D%2780%27%20height%3D%27140%27%20rx%3D%2716%27%20fill%3D%27%25233b82f6%27%2F%253E%253Crect%20x%3D%27216%27%20y%3D%27180%27%20width%3D%2780%27%20height%3D%27240%27%20rx%3D%2716%27%20fill%3D%27%25233b82f6%27%2F%253E%253Crect%20x%3D%27332%27%20y%3D%2792%27%20width%3D%2780%27%20height%3D%27328%27%20rx%3D%2716%27%20fill%3D%27%25233b82f6%27%2F%253E%253C%2Fsvg%253E%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22sizes%22%3A%22512x512%22%7D%5D%7D">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        body { background-color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         .money-font { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
         .formatli-input { width: 100%; background: transparent; outline: none; text-align: right; font-weight: bold; }
         #app { display: none; }
         #native-loader { display: flex; height: 100vh; align-items: center; justify-content: center; font-weight: bold; color: #64748b; }
         .table-container { overflow-x: auto; }
+
+        /* Mobil Yan Ekran (Landscape) Sıkıştırma Optimizasyonu */
+        @media screen and (max-width: 950px) and (orientation: landscape) {
+            .table-container table { font-size: 11px !important; }
+            .table-container th, .table-container td { padding-left: 4px !important; padding-right: 4px !important; }
+            .table-container .pl-6 { padding-left: 10px !important; }
+            .table-container .pr-6 { padding-right: 10px !important; }
+            .table-container input.w-12 { width: 32px !important; font-size: 11px !important; }
+            .table-container div.w-32, .table-container input.w-32 { width: 90px !important; font-size: 11px !important; }
+            .table-container .text-sm, .table-container .text-xs, .table-container .text-[10px] { font-size: 10px !important; }
+            .table-container .text-lg, .table-container .text-xl { font-size: 13px !important; }
+            .table-container i { font-size: 11px !important; }
+            
+            header { padding: 10px !important; margin-bottom: 10px !important; }
+            header .grid { gap: 6px !important; }
+            header .p-3, header .p-2 { padding: 6px !important; }
+            header .text-lg { font-size: 13px !important; }
+            header .text-sm { font-size: 12px !important; }
+            header .text-\[10px\] { font-size: 9px !important; margin-bottom: 2px !important;}
+            header .formatli-input { font-size: 13px !important; }
+            header span.money-font { font-size: 13px !important; }
+            header input.w-12 { width: 36px !important; height: 22px !important; }
+        }
     </style>
 </head>
 <body>
@@ -24,51 +60,52 @@
             <header class="mb-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="bg-slate-800 text-white w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-lg cursor-pointer hover:bg-slate-700 transition" 
+                        <div class="bg-slate-800 text-white w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-lg cursor-pointer hover:bg-slate-700 transition flex-shrink-0" 
                              @click="viewMode = viewMode === 'main' ? 'target' : viewMode === 'target' ? 'bonus' : 'main'">
                             <i :class="viewMode === 'main' ? 'fa-solid fa-chart-pie' : viewMode === 'target' ? 'fa-solid fa-bullseye' : 'fa-solid fa-sack-dollar'"></i>
                         </div>
-                        <div>
-                            <h1 class="text-xl font-black text-slate-800 tracking-tight">DERİMOD SİSTEM</h1>
-                            <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">
-                                {{ viewMode === 'main' ? 'Performans Takip' : viewMode === 'target' ? 'Hedef Yönetimi' : 'Prim Hesaplama' }}
+                        <div class="min-w-0">
+                            <h1 class="text-lg md:text-xl font-black text-slate-800 tracking-tight truncate">DERİMOD SİSTEM</h1>
+                            <p class="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider truncate">
+                                {{ viewMode === 'main' ? 'Performans Takip' : viewMode === 'target' ? 'Hedef Yönetimi' : 'Tahmini Prim Hesaplama' }}
                             </p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:w-auto">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">GÜN / TOPLAM</span>
-                            <div class="flex items-center gap-2 justify-center">
-                                <input type="number" v-model.number="gunGecen" class="w-12 text-center font-bold bg-white border border-slate-200 rounded py-1 outline-none">
-                                <span class="text-slate-300 font-bold">/</span>
-                                <input type="number" v-model.number="gunToplam" class="w-12 text-center font-bold text-slate-500 bg-white border border-slate-200 rounded py-1 outline-none">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 w-full md:w-auto">
+                        <div class="bg-slate-50 p-2 md:p-3 rounded-xl border border-slate-100 overflow-hidden min-w-0 flex flex-col justify-center">
+                            <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 block mb-1 truncate">GÜN / TOPLAM</span>
+                            <div class="flex items-center gap-1 md:gap-2 justify-center">
+                                <input type="number" v-model.number="gunGecen" class="w-10 md:w-12 text-center font-bold bg-white border border-slate-200 rounded py-1 outline-none text-sm md:text-base">
+                                <span class="text-slate-300 font-bold text-sm md:text-base">/</span>
+                                <input type="number" v-model.number="gunToplam" class="w-10 md:w-12 text-center font-bold text-slate-500 bg-white border border-slate-200 rounded py-1 outline-none text-sm md:text-base">
                             </div>
                         </div>
 
-                        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                            <span class="text-[10px] uppercase font-bold text-emerald-600 block mb-1">MAĞAZA HEDEFİ</span>
-                            <div class="flex items-center bg-transparent">
-                                <formatli-input v-model="magazaHedefi" siniflar="text-emerald-700 text-lg"></formatli-input>
-                                <span class="text-emerald-700 font-bold text-sm ml-1">₺</span>
+                        <div class="bg-emerald-50 p-2 md:p-3 rounded-xl border border-emerald-100 overflow-hidden min-w-0 flex flex-col justify-center">
+                            <span class="text-[9px] md:text-[10px] uppercase font-bold text-emerald-600 block mb-1 truncate">MAĞAZA HEDEFİ</span>
+                            <div class="flex items-center bg-transparent w-full">
+                                <formatli-input v-model="magazaHedefi" siniflar="text-emerald-700 text-sm md:text-lg w-full truncate"></formatli-input>
+                                <span class="text-emerald-700 font-bold text-xs md:text-sm ml-1 flex-shrink-0">₺</span>
                             </div>
                         </div>
 
-                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 shadow-inner">
-                            <span class="text-[10px] uppercase font-bold text-slate-500 block mb-1">TOPLAM CİRO</span>
-                            <span class="text-lg font-black text-emerald-400 block text-right money-font">{{ formatMoney(toplamlar.gerceklesen) }}</span>
+                        <div class="bg-slate-900 p-2 md:p-3 rounded-xl border border-slate-800 shadow-inner overflow-hidden min-w-0 flex flex-col justify-center">
+                            <span class="text-[9px] md:text-[10px] uppercase font-bold text-slate-500 block mb-1 truncate">TOPLAM CİRO</span>
+                            <span class="text-sm md:text-lg font-black text-emerald-400 block text-right money-font truncate w-full">{{ formatMoney(toplamlar.gerceklesen) }}</span>
                         </div>
 
                         <button @click="verileriKaydet" 
-                                class="flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-300 font-black shadow-md py-3 cursor-pointer"
+                                class="flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-300 font-black shadow-md p-2 md:p-3 cursor-pointer min-w-0 overflow-hidden"
                                 :class="saveStatus === 'saved' ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700'">
-                            <i :class="saveStatus === 'saved' ? 'fa-solid fa-check-double' : 'fa-solid fa-cloud-arrow-up'" class="text-lg"></i>
-                            <span class="text-[10px]">{{ saveStatus === 'saved' ? 'KAYDEDİLDİ' : 'KAYDET' }}</span>
+                            <i :class="saveStatus === 'saved' ? 'fa-solid fa-check-double' : 'fa-solid fa-cloud-arrow-up'" class="text-base md:text-lg"></i>
+                            <span class="text-[9px] md:text-[10px] truncate w-full text-center">{{ saveStatus === 'saved' ? 'KAYDEDİLDİ' : 'KAYDET' }}</span>
                         </button>
                     </div>
                 </div>
             </header>
 
+            <!-- 1. PANEL: ANA PERFORMANS TABLOSU -->
             <div v-if="viewMode === 'main'">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="table-container">
@@ -113,7 +150,8 @@
                                     
                                     <td class="px-5 font-bold text-rose-500 bg-rose-50/30 border-l border-slate-100 money-font">{{ formatMoney(kisiBasiIadePayi) }}</td>
                                     
-                                    <td class="px-4 bg-slate-50/50" v-html="getTahminHtml(calcTahmin(p.gerceklesen, p.cGun, p.gGun))"></td>
+                                    <!-- YENİ: Tahmin Sütununa hem % hem TL gönderiliyor -->
+                                    <td class="px-4 bg-slate-50/50" v-html="getTahminHtml(calcTahmin(p.gerceklesen, p.cGun, p.gGun), calcTahminiCiro(p.gerceklesen, p.cGun, p.gGun))"></td>
                                     
                                     <td class="px-3 bg-indigo-50/30"><input type="number" v-model.number="p.gGun" class="w-12 text-center font-bold text-indigo-600 bg-white border border-indigo-100 rounded py-1 outline-none" title="Şu ana kadar kaç gün çalıştı?"></td>
                                     <td class="px-3 bg-sky-50/50"><input type="number" v-model.number="p.cGun" class="w-12 text-center font-bold text-sky-700 bg-white border border-sky-100 rounded py-1 outline-none" title="Bu ay toplam kaç gün çalışacak?"></td>
@@ -162,7 +200,8 @@
                                     <td>{{ toplamlar.fatura }}</td>
                                     <td>{{ formatNum(toplamlar.upt) }}</td>
                                     <td class="text-rose-400 border-l border-slate-700 money-font">{{ formatMoney(toplamlar.iade) }}</td>
-                                    <td class="px-4" v-html="getTahminHtml(toplamlar.tahmin, true)"></td>
+                                    <!-- YENİ: Genel toplam tahmini için de hem % hem TL gönderiliyor -->
+                                    <td class="px-4" v-html="getTahminHtml(toplamlar.tahmin, toplamlar.tahminiCiro, true)"></td>
                                     <td class="text-indigo-300 text-base">{{ gunGecen }}</td>
                                     <td class="text-sky-300 text-base">{{ toplamlar.cGun }}</td>
                                     <td></td>
@@ -223,26 +262,25 @@
                                 <tr class="bg-indigo-900 text-indigo-100 uppercase font-bold text-[10px] border-b border-indigo-800">
                                     <th class="text-left pl-6 py-4 sticky left-0 z-20 bg-indigo-950 border-r border-indigo-800">PERSONEL</th>
                                     <th class="px-6 text-slate-300">%100 HEDEFİ</th>
-                                    <th class="px-6 text-emerald-400">GERÇEKLEŞEN</th>
-                                    <th class="px-6 text-sky-400">ANLIK HGO</th>
+                                    <th class="px-6 text-emerald-400">TAHMİNİ KAPANIŞ (CİRO)</th>
+                                    <th class="px-6 text-sky-400">TAHMİNİ HGO</th>
                                     <th class="px-6 text-amber-400">PRİM KATSAYISI</th>
-                                    <th class="px-6 text-rose-400 font-black text-sm bg-indigo-950/50">ANLIK HAKEDİŞ</th>
+                                    <th class="px-6 text-rose-400 font-black text-sm bg-indigo-950/50">TAHMİNİ HAKEDİŞ</th>
                                 </tr>
                             </thead>
                             <tbody class="text-slate-700 font-bold">
                                 <tr v-for="p in personel" :key="'bonus-'+p.id" class="hover:bg-indigo-50/30">
                                     <td class="text-left pl-6 py-4 sticky left-0 z-10 bg-white border-r border-slate-100 uppercase">{{ p.isim || 'İSİMSİZ' }}</td>
+                                    
                                     <td class="px-6 text-slate-500 money-font">{{ formatMoney(calcHedef(p.cGun)) }}</td>
-                                    <td class="px-6 text-emerald-600 bg-emerald-50/30 money-font">{{ formatMoney(p.gerceklesen) }}</td>
-                                    <td class="px-6" :class="calcHGO(p.gerceklesen, p.cGun) >= 100 ? 'text-emerald-500' : 'text-slate-500'">{{ formatPercent(calcHGO(p.gerceklesen, p.cGun)) }}</td>
-                                    
-                                    <td class="px-6 text-amber-600">{{ formatPercent(calcPrimKatsayisi(calcHGO(p.gerceklesen, p.cGun)) * 100) }}</td>
-                                    
-                                    <td class="px-6 text-rose-600 bg-rose-50/50 money-font text-base">{{ formatMoney(p.gerceklesen * calcPrimKatsayisi(calcHGO(p.gerceklesen, p.cGun))) }} ₺</td>
+                                    <td class="px-6 text-emerald-600 bg-emerald-50/30 money-font">{{ formatMoney(calcTahminiCiro(p.gerceklesen, p.cGun, p.gGun)) }}</td>
+                                    <td class="px-6" :class="calcTahmin(p.gerceklesen, p.cGun, p.gGun) >= 100 ? 'text-emerald-500' : 'text-slate-500'">{{ formatPercent(calcTahmin(p.gerceklesen, p.cGun, p.gGun)) }}</td>
+                                    <td class="px-6 text-amber-600">{{ formatPercent(calcPrimKatsayisi(calcTahmin(p.gerceklesen, p.cGun, p.gGun)) * 100) }}</td>
+                                    <td class="px-6 text-rose-600 bg-rose-50/50 money-font text-base">{{ formatMoney(calcTahminiCiro(p.gerceklesen, p.cGun, p.gGun) * calcPrimKatsayisi(calcTahmin(p.gerceklesen, p.cGun, p.gGun))) }} ₺</td>
                                 </tr>
                                 
                                 <tr class="bg-indigo-900 text-white font-bold">
-                                    <td class="text-left pl-6 py-5 sticky left-0 z-10 bg-indigo-950 border-r border-indigo-800">TOPLAM PRİM DAĞITIMI</td>
+                                    <td class="text-left pl-6 py-5 sticky left-0 z-10 bg-indigo-950 border-r border-indigo-800">AY SONU TAHMİNİ PRİM DAĞITIMI</td>
                                     <td colspan="4"></td>
                                     <td class="px-6 text-rose-400 text-xl money-font">{{ formatMoney(toplamPrim) }} ₺</td>
                                 </tr>
@@ -316,7 +354,7 @@
             components: { 'formatli-input': FormatliInput },
             data() {
                 return {
-                    viewMode: 'main', // main | target | bonus
+                    viewMode: 'main',
                     saveStatus: 'idle',
                     showDeleteModal: false,
                     deleteTargetIndex: null,
@@ -365,16 +403,19 @@
                     
                     let zamanOrani = this.gunToplam > 0 ? Math.min(this.gunGecen / this.gunToplam, 1) : 1;
                     let tahmin = (this.magazaHedefi > 0 && zamanOrani > 0) ? ((gerceklesen / this.magazaHedefi) / zamanOrani) * 100 : 0;
+                    
+                    // Mağazanın toplam tahmini kapanış cirosu hesaplaması
+                    let tahminiCiro = zamanOrani > 0 ? (gerceklesen / zamanOrani) : 0;
 
-                    return { cGun, gerceklesen, hgo, osf, oft, satis, fatura, upt, iade: Math.abs(Number(this.magazaIade.gerceklesen) || 0), tahmin };
+                    return { cGun, gerceklesen, hgo, osf, oft, satis, fatura, upt, iade: Math.abs(Number(this.magazaIade.gerceklesen) || 0), tahmin, tahminiCiro };
                 },
-                // TOPLAM PRİM HESAPLAMASI
                 toplamPrim() {
                     let total = 0;
                     this.personel.forEach(p => {
-                        const hgo = this.calcHGO(p.gerceklesen, p.cGun);
-                        const katsayi = this.calcPrimKatsayisi(hgo);
-                        total += (Number(p.gerceklesen) || 0) * katsayi;
+                        const tahminiCiro = this.calcTahminiCiro(p.gerceklesen, p.cGun, p.gGun);
+                        const tahminiHGO = this.calcTahmin(p.gerceklesen, p.cGun, p.gGun);
+                        const katsayi = this.calcPrimKatsayisi(tahminiHGO);
+                        total += tahminiCiro * katsayi;
                     });
                     return total;
                 }
@@ -414,46 +455,45 @@
                     const h = this.calcHedef(cGun);
                     return h > 0 ? ((Number(gerceklesen) || 0) / h) * 100 : 0;
                 },
-                
-                // PRİM KATSAYISI BELİRLEYİCİ MANTIK (Gönderdiğin tabloya göre)
                 calcPrimKatsayisi(hgo) {
                     if (hgo < 80) return 0;
-                    if (hgo < 85) return 0.005; // %0.50
-                    if (hgo < 90) return 0.01;  // %1.00
-                    if (hgo < 95) return 0.012; // %1.20
-                    if (hgo < 100) return 0.014; // %1.40
-                    if (hgo < 105) return 0.017; // %1.70
-                    if (hgo < 110) return 0.018; // %1.80
-                    if (hgo < 115) return 0.02;  // %2.00
-                    if (hgo < 120) return 0.024; // %2.40
-                    if (hgo < 130) return 0.027; // %2.70
-                    return 0.03;                 // %3.00 (130+)
+                    if (hgo < 85) return 0.005;
+                    if (hgo < 90) return 0.01;
+                    if (hgo < 95) return 0.012;
+                    if (hgo < 100) return 0.014;
+                    if (hgo < 105) return 0.017;
+                    if (hgo < 110) return 0.018;
+                    if (hgo < 115) return 0.02;
+                    if (hgo < 120) return 0.024;
+                    if (hgo < 130) return 0.027;
+                    return 0.03;
                 },
-
+                calcTahminiCiro(gerceklesen, cGun, gGun) {
+                    if (!gGun || gGun <= 0) return 0;
+                    return ((Number(gerceklesen) || 0) / gGun) * (Number(cGun) || 0);
+                },
                 calcTahmin(gerceklesen, cGun, gGun) {
                     const h = this.calcHedef(cGun);
-                    if (!gGun || gGun <= 0 || h <= 0) return 0;
-                    const tahminiKapanis = ((Number(gerceklesen) || 0) / gGun) * (Number(cGun) || 0);
-                    return (tahminiKapanis / h) * 100;
+                    if (h <= 0) return 0;
+                    const tahminiCiro = this.calcTahminiCiro(gerceklesen, cGun, gGun);
+                    return (tahminiCiro / h) * 100;
                 },
-
                 calcOSF(gerceklesen, satis) { return Number(satis) > 0 ? (Number(gerceklesen) || 0) / Number(satis) : 0; },
                 calcOFT(gerceklesen, fatura) { return Number(fatura) > 0 ? (Number(gerceklesen) || 0) / Number(fatura) : 0; },
                 calcUPT(satis, fatura) { return Number(fatura) > 0 ? (Number(satis) || 0) / Number(fatura) : 0; },
-                
                 formatMoney(value) { return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0); },
                 formatNum(value) { return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0); },
                 formatPercent(value, decimals = 2) { return '%' + new Intl.NumberFormat('tr-TR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(Number(value) || 0); },
-                
                 getHgoHtml(hgo) {
                     const color = hgo >= 100 ? 'text-emerald-600' : hgo >= 80 ? 'text-indigo-600' : 'text-rose-500';
                     return `<span class="${color} font-black text-sm tracking-tighter">${this.formatPercent(hgo)}</span>`;
                 },
-
-                getTahminHtml(tahmin, isDark = false) {
+                
+                // YENİ: Hem tahmini yüzdeyi hem de tahmini ciroyu alt alta gösterecek şekilde revize edildi
+                getTahminHtml(tahmin, tahminiCiro, isDark = false) {
                     let colorClass = '';
                     let iconClass = '';
-
+                    
                     if (tahmin >= 120) {
                         colorClass = isDark ? 'text-blue-400' : 'text-blue-500';
                         iconClass = 'fa-solid fa-arrow-up';
@@ -468,14 +508,20 @@
                         iconClass = 'fa-solid fa-arrow-down';
                     }
 
-                    return `<div class="flex items-center justify-center gap-1.5 font-black ${colorClass} text-sm">
-                                <i class="${iconClass}"></i>
-                                <span>${this.formatPercent(tahmin, 0)}</span>
+                    // Alt satıra yazılacak ciro tutarının rengi
+                    let ciroColor = isDark ? 'text-slate-400' : 'text-slate-500';
+
+                    // Flex column ile alt alta dizilim
+                    return `<div class="flex flex-col items-center justify-center leading-tight">
+                                <div class="flex items-center justify-center gap-1 font-black ${colorClass} text-sm">
+                                    <i class="${iconClass}"></i>
+                                    <span>${this.formatPercent(tahmin, 0)}</span>
+                                </div>
+                                <span class="text-[10px] ${ciroColor} font-bold money-font tracking-tight mt-0.5">${this.formatMoney(tahminiCiro)} ₺</span>
                             </div>`;
                 },
 
                 eklePersonel() { this.personel.push({ id: Date.now(), isim: 'YENİ PERSONEL', gGun: this.gunGecen, cGun: this.gunToplam, gerceklesen: 0, satis: 0, fatura: 0 }); },
-                
                 silPersonel(index) { 
                     this.deleteTargetIndex = index;
                     this.showDeleteModal = true;
