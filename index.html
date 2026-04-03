@@ -15,6 +15,8 @@
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23dc2626'/%3E%3Crect x='100' y='280' width='80' height='140' rx='16' fill='%233b82f6'/%3E%3Crect x='216' y='180' width='80' height='240' rx='16' fill='%233b82f6'/%3E%3Crect x='332' y='92' width='80' height='328' rx='16' fill='%233b82f6'/%3E%3C/svg%3E" type="image/svg+xml">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23dc2626'/%3E%3Crect x='100' y='280' width='80' height='140' rx='16' fill='%233b82f6'/%3E%3Crect x='216' y='180' width='80' height='240' rx='16' fill='%233b82f6'/%3E%3Crect x='332' y='92' width='80' height='328' rx='16' fill='%233b82f6'/%3E%3C/svg%3E">
+    <!-- TAM EKRAN (FULLSCREEN) MODU İÇİN MANIFEST GÜNCELLENDİ -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Derimod%20Performans%22%2C%22short_name%22%3A%22Derimod%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22fullscreen%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%231e293b%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%253E%253Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27112%27%20fill%3D%27%2523dc2626%27%2F%253E%253Crect%20x%3D%27100%27%20y%3D%27280%27%20width%3D%2780%27%20height%3D%27140%27%20rx%3D%2716%27%20fill%3D%27%25233b82f6%27%2F%253E%253Crect%20x%3D%27216%27%20y%3D%27180%27%20width%3D%2780%27%20height%3D%27240%27%20rx%3D%2716%27%20fill%3D%27%25233b82f6%27%2F%253E%253Crect%20x%3D%27332%27%20y%3D%2792%27%20width%3D%2780%27%20height%3D%27328%27%20rx%3D%2716%27%20fill%3D%27%25233b82f6%27%2F%253E%253C%2Fsvg%253E%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22sizes%22%3A%22512x512%22%7D%5D%7D">
 
     <!-- KÜTÜPHANELER -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,11 +30,15 @@
             background-color: #f8fafc; 
             font-family: system-ui, -apple-system, sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            /* Cihazın sanal tuşları için güvenli alan boşlukları */
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
             padding-bottom: env(safe-area-inset-bottom);
         }
+        
+        /* Tam Ekran Modu Arka Plan Sabitlemesi */
+        html:fullscreen, body:fullscreen { background-color: #f8fafc !important; overflow-y: auto; }
+        html:-webkit-full-screen, body:-webkit-full-screen { background-color: #f8fafc !important; overflow-y: auto; }
+
         .money-font { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
         .formatli-input { width: 100%; background: transparent; outline: none; text-align: right; font-weight: bold; }
         #app { display: none; }
@@ -70,20 +76,34 @@
 <body>
     <div id="native-loader">Yükleniyor...</div>
     <div id="app">
+        <!-- ZIPLAYAN MOBİL TAM EKRAN BUTONU (Sadece yatayda ve tam ekran değilken görünür) -->
+        <div v-if="isLandscape && !isFullscreen" class="fixed bottom-6 right-6 z-[9999] md:hidden animate-bounce no-print">
+            <button @click="toggleFullScreen" class="bg-slate-900 text-white px-5 py-3 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.5)] font-bold flex items-center gap-2 border-2 border-slate-700 active:scale-95 transition-transform">
+                <i class="fa-solid fa-expand text-lg"></i>
+                Tam Ekran Yap
+            </button>
+        </div>
+
         <div class="p-4 md:p-8 max-w-[1600px] mx-auto pb-12 md:pb-8">
             
             <!-- ORTAK ÜST BİLGİ ALANI -->
             <header class="mb-4 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 no-print">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3 md:gap-4 flex-1">
                         <div class="bg-slate-800 text-white w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-lg flex-shrink-0">
                             <i :class="viewIcon"></i>
                         </div>
-                        <div class="min-w-0">
-                            <h1 class="text-lg md:text-xl font-black text-slate-800 tracking-tight truncate">DERİMOD SİSTEM</h1>
-                            <p class="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider truncate">
-                                {{ viewTitle }}
-                            </p>
+                        <div class="min-w-0 flex items-center gap-3">
+                            <div>
+                                <h1 class="text-lg md:text-xl font-black text-slate-800 tracking-tight truncate">DERİMOD SİSTEM</h1>
+                                <p class="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider truncate">
+                                    {{ viewTitle }}
+                                </p>
+                            </div>
+                            <!-- Başlıktaki Küçük Tam Ekran İkonu -->
+                            <button @click="toggleFullScreen" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center border border-slate-200 hover:bg-slate-200 hover:text-slate-800 transition-colors" :title="isFullscreen ? 'Tam Ekrandan Çık' : 'Tam Ekran Yap'">
+                                <i :class="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -612,7 +632,10 @@
                     personel: [
                         { id: 1, isim: 'ERTAN KARABULUT', gGun: 19, cGun: 31, hGun: 31, gerceklesen: 524000, satis: 94, fatura: 55, shoes_target: '', shoes_actual: '', bags_target: '', bags_actual: '', clothing_target: '', clothing_actual: '', belts_target: '', belts_actual: '', socks_target: '', socks_actual: '', wallets_target: '', wallets_actual: '', care_target: '', care_actual: '' },
                         { id: 2, isim: 'EMRE SARIBOĞA', gGun: 19, cGun: 31, hGun: 31, gerceklesen: 499723.02, satis: 124, fatura: 69, shoes_target: '', shoes_actual: '', bags_target: '', bags_actual: '', clothing_target: '', clothing_actual: '', belts_target: '', belts_actual: '', socks_target: '', socks_actual: '', wallets_target: '', wallets_actual: '', care_target: '', care_actual: '' }
-                    ]
+                    ],
+                    // TAM EKRAN VE YÖN KONTROL DEĞİŞKENLERİ
+                    isFullscreen: false,
+                    isLandscape: window.innerWidth > window.innerHeight
                 }
             },
             computed: {
@@ -668,16 +691,37 @@
             mounted() {
                 this.verileriYukle();
                 
-                // TELEFON YAN ÇEVRİLDİĞİNDE KLAVYEYİ OTOMATİK KAPATMA KODU (Mobil UX Düzeltmesi)
+                // TELEFON EKRANI YAN ÇEVRİLDİĞİNDE KLAVYE VE TAM EKRAN DİNLEYİCİLERİ
+                window.addEventListener('resize', this.checkOrientation);
                 window.addEventListener('orientationchange', () => {
+                    this.checkOrientation();
                     if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-                        document.activeElement.blur();
+                        document.activeElement.blur(); // Açık kalan klavyeyi zorla kapatır
                     }
                 });
+
+                // Tarayıcı üzerinden tam ekrana geçildiğinde Vue verisini güncelle
+                document.addEventListener('fullscreenchange', () => { this.isFullscreen = !!document.fullscreenElement; });
+                document.addEventListener('webkitfullscreenchange', () => { this.isFullscreen = !!document.webkitFullscreenElement; });
 
                 setTimeout(() => { document.getElementById('native-loader').style.display = 'none'; document.getElementById('app').style.display = 'block'; }, 500);
             },
             methods: {
+                // NETFLİX TAM EKRAN API KODLARI
+                toggleFullScreen() {
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                        const docElm = document.documentElement;
+                        if (docElm.requestFullscreen) docElm.requestFullscreen();
+                        else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
+                    } else {
+                        if (document.exitFullscreen) document.exitFullscreen();
+                        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                    }
+                },
+                checkOrientation() {
+                    this.isLandscape = window.innerWidth > window.innerHeight;
+                },
+
                 verileriKaydet() {
                     try {
                         const veri = {
